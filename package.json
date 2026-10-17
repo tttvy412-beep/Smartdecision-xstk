@@ -1,9 +1,21 @@
+
 {
   "name": "smartdecision",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "scripts": {"dev": "vite --host 0.0.0.0", "build": "vite build", "preview": "vite preview"},
-  "dependencies": {"@vitejs/plugin-react": "latest", "vite": "latest", "react": "latest", "react-dom": "latest", "lucide-react": "latest"},
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "latest",
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "lucide-react": "latest"
+  },
   "devDependencies": {}
 }
