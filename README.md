@@ -1,27 +1,22 @@
-# SmartDecision
+# SmartDecision — bản demo hoàn chỉnh
 
-Website demo hệ thống thông tin hỗ trợ ra quyết định cho doanh nghiệp bán lẻ vừa và nhỏ. Giao diện tiếng Việt, responsive, có dashboard, quản lý sản phẩm/đơn hàng/khách hàng/nhà cung cấp, tồn kho, chi phí, phân tích, cảnh báo, mô phỏng, trợ lý quy tắc, theo dõi quyết định và báo cáo.
+Ứng dụng React/Vite cho đồ án hệ thống thông tin quản lý bán lẻ.
 
-## Chạy trên máy
+## Triển khai
 
-Cần cài Node.js 20 trở lên.
+1. Sao lưu mã nguồn GitHub cũ, sau đó tải **nội dung bên trong thư mục ZIP** lên repository hiện tại, ghi đè các file trùng tên.
+2. Netlify build command: `npm run build`; publish directory: `dist`.
+3. Giữ nguyên `VITE_SUPABASE_URL` và `VITE_SUPABASE_PUBLISHABLE_KEY` đã thiết lập trên Netlify.
+4. Chờ Netlify Published và tải lại website.
 
-```bash
-npm install
-npm run dev
-```
+## Dữ liệu & bảo mật
 
-Mở địa chỉ Vite hiển thị trong terminal (thường là http://localhost:5173).
+- Bảng `products` trên Supabase chỉ được đọc công khai (SELECT anon + RLS); không cấp INSERT/UPDATE/DELETE công khai.
+- Thêm/sửa/xóa sản phẩm, nhà cung cấp, đơn hàng, khách hàng, chi phí, quyết định được lưu trong localStorage trên thiết bị đang sử dụng.
+- Khôi phục dữ liệu demo tại Cài đặt; sản phẩm trở về snapshot Supabase vừa tải.
+- Không dùng dữ liệu cá nhân hoặc kinh doanh thật. Không có xác thực, phân quyền hay đồng bộ ghi giữa các máy.
+- Trợ lý hỏi đáp là logic quy tắc demo, không phải mô hình AI gọi API; nút mic chưa triển khai. Biểu đồ và mô phỏng có phần số liệu giả định.
 
-## Đưa lên GitHub
+## Chạy cục bộ
 
-1. Tạo repository mới trên GitHub.
-2. Upload toàn bộ nội dung thư mục này (không upload `node_modules`).
-3. Để chạy trực tiếp trên web, vào **Settings → Pages** và cấu hình GitHub Actions phù hợp với Vite, hoặc deploy repository lên Vercel/Netlify. GitHub không tự chạy ứng dụng React chỉ bằng việc upload mã nguồn.
-
-## Lưu ý về dữ liệu
-
-- Đây là bản demo frontend. Dữ liệu được lưu trong `localStorage` trên trình duyệt hiện tại, không đồng bộ giữa thiết bị/người dùng.
-- Trợ lý hiện dùng quy tắc demo, không phải mô hình AI tạo sinh và không gọi API bên ngoài.
-- Muốn có đăng nhập, phân quyền, cơ sở dữ liệu đám mây và AI thật, cần bổ sung backend/Supabase và cấu hình khóa API ở phía máy chủ.
-- Các số liệu khởi tạo là dữ liệu minh họa, không phải dữ liệu doanh nghiệp thực tế.
+`npm install` rồi `npm run dev`. Tạo `.env.local` với hai biến VITE nếu muốn đọc Supabase ở máy riêng.

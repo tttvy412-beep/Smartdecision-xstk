@@ -69,7 +69,10 @@ function Modal({ title, onClose, children }) { return <div className="modal-back
 export default function App() {
   const [page, setPage] = useState('Tổng quan');
   const [mobileNav, setMobileNav] = useState(false);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(() => readStore('sd_products_demo_v2', []));
+  const [productsReady, setProductsReady] = useState(false);
+  const [productBase, setProductBase] = useState([]);
+  const [editProduct, setEditProduct] = useState(null);
   const [productsLoading, setProductsLoading] = useState(true);
   const [orders, setOrders] = useState(() => readStore('sd_orders', initialOrders));
   const [customers, setCustomers] = useState(() => readStore('sd_customers', initialCustomers));
@@ -102,20 +105,16 @@ useEffect(() => {
 
     if (error) {
       console.error('Lỗi Supabase:', error.message);
-      setToast('Không thể tải sản phẩm từ Supabase.');
+      setToast('Không tải được Supabase; kiểm tra URL, khóa và quyền SELECT.');
     } else {
-      setProducts(
-        (data || []).map(p => ({
-          ...p,
-          price: Number(p.price),
-          cost: Number(p.cost),
-          stock: Number(p.stock),
-          min: Number(p.min)
-        }))
-      );
+      const normalized = (data || []).map(p => ({ ...p, price: Number(p.price), cost: Number(p.cost), stock: Number(p.stock), min: Number(p.min) }));
+      setProductBase(normalized);
+      const cached = readStore('sd_products_demo_v2', null);
+      setProducts(Array.isArray(cached) ? cached : normalized);
     }
 
     setProductsLoading(false);
+    setProductsReady(true);
   }
 
   loadProducts();
@@ -124,6 +123,7 @@ useEffect(() => {
     active = false;
   };
 }, []);
+  useEffect(() => { if (productsReady) saveStore('sd_products_demo_v2', products); }, [products, productsReady]);
   useEffect(() => saveStore('sd_orders', orders), [orders]);
   useEffect(() => saveStore('sd_customers', customers), [customers]);
   useEffect(() => saveStore('sd_suppliers', suppliers), [suppliers]);
@@ -132,10 +132,10 @@ useEffect(() => {
   useEffect(() => saveStore('sd_settings', settings), [settings]);
   useEffect(() => { if (toast) { const t = setTimeout(() => setToast(''), 2800); return () => clearTimeout(t); } }, [toast]);
 
-  const revenue = orders.filter(o => o.status === 'Hoàn thành').reduce((sum, o) => sum + o.total, 0) + 12450000;
+  const revenue = orders.filter(o => o.status === 'Hoàn thành').reduce((sum, o) => sum + o.total, 0);
   const lowStock = products.filter(p => p.stock <= p.min);
   const inventoryValue = products.reduce((sum, p) => sum + p.stock * p.cost, 0);
-  const grossProfit = products.reduce((sum, p) => sum + p.stock * (p.price - p.cost), 0) + 16800000;
+  const grossProfit = products.reduce((sum, p) => sum + p.stock * (p.price - p.cost), 0);
   const searchFilter = (rows, fields) => rows.filter(row => fields.some(field => String(row[field] ?? '').toLowerCase().includes(query.toLowerCase())));
   const go = (name) => { setPage(name); setMobileNav(false); setQuery(''); };
   const notify = (message) => setToast(message);
@@ -163,9 +163,14 @@ useEffect(() => {
 
   function submitModal(e) {
     e.preventDefault(); const fd = new FormData(e.currentTarget); const v = Object.fromEntries(fd.entries());
-    if (modal === 'product') {
+    if (modal === 'product' || modal === 'product-edit') {
       if (!v.name || Number(v.price) < 0 || Number(v.stock) < 0) return notify('Vui lòng nhập tên và số liệu hợp lệ.');
-      setProducts(prev => [{ id: `SP${String(Date.now()).slice(-5)}`, name: v.name, category: v.category || 'Khác', price: Number(v.price), cost: Number(v.cost), stock: Number(v.stock), min: Number(v.min), supplier: v.supplier || 'Chưa chọn' }, ...prev]); notify('Đã thêm sản phẩm.');
+      const product = { id: modal === 'product-edit' ? editProduct.id : `SP${Date.now()}`, name: v.name.trim(), category: v.category || 'Khác', price: Number(v.price), cost: Number(v.cost), stock: Number(v.stock), min: Number(v.min), supplier: v.supplier || 'Chưa chọn' };
+      if (modal === 'product-edit') { setProducts(prev => prev.map(p => p.id === product.id ? product : p)); notify('Đã cập nhật sản phẩm demo.'); }
+      else { setProducts(prev => [product, ...prev]); notify('Đã thêm sản phẩm demo.'); }
+    } else if (modal === 'supplier') {
+      if (!v.name?.trim()) return notify('Vui lòng nhập tên nhà cung cấp.');
+      setSuppliers(prev => [{ id: `NCC${Date.now()}`, name: v.name.trim(), contact: v.contact || '', products: 0, debt: Math.max(0, Number(v.debt) || 0) }, ...prev]); notify('Đã thêm nhà cung cấp demo.');
     } else if (modal === 'order') {
       if (!v.customer || Number(v.total) <= 0) return notify('Vui lòng nhập khách hàng và tổng tiền hợp lệ.');
       setOrders(prev => [{ id: `DH-${String(Date.now()).slice(-4)}`, customer: v.customer, date: new Date().toLocaleDateString('vi-VN'), total: Number(v.total), status: v.status || 'Đang xử lý', items: v.items || 'Đơn hàng mới' }, ...prev]); notify('Đã tạo đơn hàng.');
@@ -176,9 +181,11 @@ useEffect(() => {
     } else if (modal === 'decision') {
       addDecision(v.title, v.reason); notify('Đã tạo quyết định theo dõi.');
     }
-    setModal(null);
+    setModal(null); setEditProduct(null);
   }
 
+  function openEditProduct(p) { setEditProduct(p); setModal('product-edit'); }
+  function deleteSupplier(id) { if (confirm('Xóa nhà cung cấp demo này?')) { setSuppliers(prev => prev.filter(s => s.id !== id)); notify('Đã xóa nhà cung cấp.'); } }
   function deleteProduct(id) { if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) { setProducts(prev => prev.filter(p => p.id !== id)); notify('Đã xóa sản phẩm.'); } }
   function changeDecision(id, status) { setDecisions(prev => prev.map(d => d.id === id ? { ...d, status } : d)); notify('Đã cập nhật trạng thái quyết định.'); }
 
@@ -204,7 +211,7 @@ useEffect(() => {
     return <>
       <div className="kpi-grid">
         <KpiCard title="Doanh thu ghi nhận" value={money(revenue)} change="12,8%" icon={CircleDollarSign} tone="blue" />
-        <KpiCard title="Đơn hàng" value={number(orders.length + 126)} change="8,4%" icon={ShoppingCart} tone="purple" />
+        <KpiCard title="Đơn hàng" value={number(orders.length)} change="8,4%" icon={ShoppingCart} tone="purple" />
         <KpiCard title="Lợi nhuận gộp ước tính" value={money(grossProfit)} change="6,2%" icon={TrendingUp} tone="green" />
         <KpiCard title="Cảnh báo tồn kho" value={`${lowStock.length} mặt hàng`} change={lowStock.length ? 'Cần chú ý' : 'Ổn định'} icon={AlertTriangle} tone="orange" note="theo ngưỡng thiết lập" />
       </div>
@@ -213,7 +220,7 @@ useEffect(() => {
         <div className="panel"><div className="panel-heading"><div><h2>Ưu tiên hôm nay</h2><p>Những việc cần chú ý</p></div><Bell size={18} className="muted"/></div><div className="priority-list">{lowStock.slice(0, 3).map(p => <div className="priority-item" key={p.id}><span className="priority-icon warning"><AlertTriangle size={16}/></span><div><strong>{p.name}</strong><p>Còn {p.stock} sản phẩm · ngưỡng {p.min}</p></div><ChevronRight size={16}/></div>)}{lowStock.length === 0 && <div className="priority-item"><span className="priority-icon success"><Check size={16}/></span><div><strong>Tồn kho trong ngưỡng</strong><p>Chưa phát hiện mặt hàng dưới ngưỡng.</p></div></div>}<div className="priority-item"><span className="priority-icon blue"><ClipboardList size={16}/></span><div><strong>{orders.filter(o => o.status === 'Đang xử lý').length} đơn đang xử lý</strong><p>Kiểm tra tiến độ giao hàng.</p></div><ChevronRight size={16} onClick={() => go('Bán hàng & đơn hàng')}/></div><div className="priority-item"><span className="priority-icon purple"><Lightbulb size={16}/></span><div><strong>{decisions.filter(d => d.status !== 'Hoàn thành').length} quyết định đang mở</strong><p>Cập nhật người phụ trách và thời hạn.</p></div><ChevronRight size={16} onClick={() => go('Quyết định')}/></div></div><button className="text-button" onClick={() => go('Cảnh báo kinh doanh')}>Xem tất cả cảnh báo <ChevronRight size={15}/></button></div>
       </div>
       <div className="panel table-panel"><div className="panel-heading"><div><h2>Đơn hàng gần đây</h2><p>Các giao dịch mới nhất trong dữ liệu demo</p></div><Button variant="secondary" onClick={() => go('Bán hàng & đơn hàng')}>Xem tất cả <ChevronRight size={15}/></Button></div><OrdersTable rows={orders.slice(0, 4)}/></div>
-      <div className="demo-note"><Sparkles size={17}/><span><strong>Lưu ý dữ liệu:</strong> SmartDecision đang hiển thị dữ liệu minh họa và dữ liệu bạn thao tác trên trình duyệt này. Hãy kết nối cơ sở dữ liệu trước khi dùng cho quyết định kinh doanh thực tế.</span></div>
+      <div className="demo-note"><Sparkles size={17}/><span><strong>Dữ liệu demo:</strong> Sản phẩm mẫu được đọc từ Supabase; chỉnh sửa lưu riêng trên thiết bị. Đơn hàng, khách hàng và các chỉ số mô phỏng là dữ liệu minh họa, không dùng để quyết định kinh doanh thực tế.</span></div>
     </>;
   }
 
@@ -225,12 +232,12 @@ useEffect(() => {
 
   function renderProducts(inventory = false) {
     const rows = searchFilter(products, ['id','name','category','supplier']);
-    return <><div className="summary-strip"><div><span>Tổng sản phẩm</span><strong>{products.length}</strong></div><div><span>Giá trị tồn kho (giá vốn)</span><strong>{money(inventoryValue)}</strong></div><div><span>Đang dưới ngưỡng</span><strong className={lowStock.length ? 'text-warning' : ''}>{lowStock.length}</strong></div><div><span>Danh mục</span><strong>{new Set(products.map(p=>p.category)).size}</strong></div></div><div className="panel table-panel"><div className="panel-heading wrap-heading"><div><h2>{inventory ? 'Tình trạng tồn kho' : 'Danh mục sản phẩm'}</h2><p>{inventory ? 'Theo dõi số lượng thực tế và ngưỡng tồn tối thiểu' : 'Cập nhật thông tin sản phẩm, giá và nhà cung cấp'}</p></div><div className="toolbar"><SearchBox value={query} onChange={setQuery} placeholder="Tìm tên, mã, danh mục..."/><Button icon={Plus} onClick={() => setModal('product')}>Thêm sản phẩm</Button></div></div><div className="table-wrap"><table><thead><tr><th>Mã SP</th><th>Sản phẩm</th><th>Danh mục</th><th>Giá bán</th><th>Giá vốn</th><th>Tồn kho</th><th>Trạng thái</th><th></th></tr></thead><tbody>{rows.map(p=><tr key={p.id}><td className="code-cell">{p.id}</td><td><strong>{p.name}</strong><small>{p.supplier}</small></td><td>{p.category}</td><td className="amount-cell">{money(p.price)}</td><td>{money(p.cost)}</td><td><strong>{p.stock}</strong><small>Ngưỡng: {p.min}</small></td><td><Badge tone={p.stock <= p.min ? 'warning' : 'success'}>{p.stock <= p.min ? 'Cần nhập hàng' : 'Đủ hàng'}</Badge></td><td><button className="icon-button danger-icon" title="Xóa sản phẩm" onClick={()=>deleteProduct(p.id)}><Trash2 size={16}/></button></td></tr>)}</tbody></table>{!rows.length && <EmptyState text="Không tìm thấy sản phẩm."/>}</div><div className="table-footer"><span>{rows.length} sản phẩm</span><Button variant="secondary" icon={Download} onClick={()=>exportCsv(rows, inventory ? 'ton-kho.csv':'san-pham.csv')}>Xuất CSV</Button></div></div></>;
+    return <><div className="summary-strip"><div><span>Tổng sản phẩm</span><strong>{products.length}</strong></div><div><span>Giá trị tồn kho (giá vốn)</span><strong>{money(inventoryValue)}</strong></div><div><span>Đang dưới ngưỡng</span><strong className={lowStock.length ? 'text-warning' : ''}>{lowStock.length}</strong></div><div><span>Danh mục</span><strong>{new Set(products.map(p=>p.category)).size}</strong></div></div><div className="panel table-panel"><div className="panel-heading wrap-heading"><div><h2>{inventory ? 'Tình trạng tồn kho' : 'Danh mục sản phẩm'}</h2><p>{inventory ? 'Theo dõi số lượng thực tế và ngưỡng tồn tối thiểu' : 'Cập nhật thông tin sản phẩm, giá và nhà cung cấp'}</p></div><div className="toolbar"><SearchBox value={query} onChange={setQuery} placeholder="Tìm tên, mã, danh mục..."/><Button icon={Plus} onClick={() => setModal('product')}>Thêm sản phẩm</Button></div></div><div className="table-wrap"><table><thead><tr><th>Mã SP</th><th>Sản phẩm</th><th>Danh mục</th><th>Giá bán</th><th>Giá vốn</th><th>Tồn kho</th><th>Trạng thái</th><th></th></tr></thead><tbody>{rows.map(p=><tr key={p.id}><td className="code-cell">{p.id}</td><td><strong>{p.name}</strong><small>{p.supplier}</small></td><td>{p.category}</td><td className="amount-cell">{money(p.price)}</td><td>{money(p.cost)}</td><td><strong>{p.stock}</strong><small>Ngưỡng: {p.min}</small></td><td><Badge tone={p.stock <= p.min ? 'warning' : 'success'}>{p.stock <= p.min ? 'Cần nhập hàng' : 'Đủ hàng'}</Badge></td><td><button className="icon-button" title="Sửa sản phẩm" onClick={()=>openEditProduct(p)}><Pencil size={16}/></button><button className="icon-button danger-icon" title="Xóa sản phẩm" onClick={()=>deleteProduct(p.id)}><Trash2 size={16}/></button></td></tr>)}</tbody></table>{!rows.length && <EmptyState text={productsLoading ? 'Đang tải sản phẩm từ Supabase...' : 'Không tìm thấy sản phẩm.'}/>}</div><div className="table-footer"><span>{rows.length} sản phẩm</span><Button variant="secondary" icon={Download} onClick={()=>exportCsv(rows, inventory ? 'ton-kho.csv':'san-pham.csv')}>Xuất CSV</Button></div></div></>;
   }
 
   function renderCustomers() { const rows = searchFilter(customers,['id','name','phone','email']); return <div className="panel table-panel"><div className="panel-heading wrap-heading"><div><h2>Danh sách khách hàng</h2><p>Thông tin liên hệ và giá trị mua hàng</p></div><div className="toolbar"><SearchBox value={query} onChange={setQuery} placeholder="Tìm khách hàng..."/><Button icon={Plus} onClick={()=>setModal('customer')}>Thêm khách hàng</Button></div></div><div className="table-wrap"><table><thead><tr><th>Mã KH</th><th>Khách hàng</th><th>Điện thoại</th><th>Email</th><th>Số đơn</th><th>Tổng chi tiêu</th></tr></thead><tbody>{rows.map(c=><tr key={c.id}><td className="code-cell">{c.id}</td><td><strong>{c.name}</strong></td><td>{c.phone}</td><td>{c.email}</td><td>{c.orders}</td><td className="amount-cell">{money(c.spent)}</td></tr>)}</tbody></table>{!rows.length&&<EmptyState/>}</div><div className="table-footer"><span>{rows.length} khách hàng</span><Button variant="secondary" icon={Download} onClick={()=>exportCsv(rows,'khach-hang.csv')}>Xuất CSV</Button></div></div>; }
 
-  function renderSuppliers() { const rows = searchFilter(suppliers,['id','name','contact']); return <div className="content-grid two-col">{rows.map(s=><div className="panel supplier-card" key={s.id}><div className="supplier-icon"><Building2 size={22}/></div><div className="supplier-main"><div className="supplier-top"><h2>{s.name}</h2><Badge tone="success">Đang hợp tác</Badge></div><p>{s.id} · {s.contact}</p><div className="supplier-stats"><div><span>Sản phẩm cung ứng</span><strong>{s.products}</strong></div><div><span>Công nợ tham khảo</span><strong>{money(s.debt)}</strong></div></div></div></div>)}<div className="panel supplier-add" onClick={()=>notify('Bản demo: chức năng thêm nhà cung cấp sẽ được bổ sung trong phiên bản tiếp theo.')}><Plus size={20}/><strong>Thêm nhà cung cấp</strong><span>Ghi nhận đối tác cung ứng mới</span></div></div>; }
+  function renderSuppliers() { const rows = searchFilter(suppliers,['id','name','contact']); return <div className="content-grid two-col">{rows.map(s=><div className="panel supplier-card" key={s.id}><div className="supplier-icon"><Building2 size={22}/></div><div className="supplier-main"><div className="supplier-top"><h2>{s.name}</h2><Badge tone="success">Đang hợp tác</Badge><button className="icon-button danger-icon" title="Xóa nhà cung cấp demo" onClick={()=>deleteSupplier(s.id)}><Trash2 size={15}/></button></div><p>{s.id} · {s.contact}</p><div className="supplier-stats"><div><span>Sản phẩm cung ứng</span><strong>{s.products}</strong></div><div><span>Công nợ tham khảo</span><strong>{money(s.debt)}</strong></div></div></div></div>)}<div className="panel supplier-add" onClick={()=>setModal('supplier')}><Plus size={20}/><strong>Thêm nhà cung cấp</strong><span>Ghi nhận đối tác cung ứng mới</span></div></div>; }
 
   function renderExpenses() { const rows = searchFilter(expenses,['id','name','category']); const total = expenses.reduce((s,e)=>s+e.amount,0); return <><div className="kpi-grid three-kpi"><KpiCard title="Tổng chi phí đã ghi nhận" value={money(total)} change="3 khoản" icon={Wallet} tone="purple" note="trong danh sách demo"/><KpiCard title="Lợi nhuận gộp ước tính" value={money(grossProfit)} change="Ước tính" icon={TrendingUp} tone="green" note="chưa trừ toàn bộ chi phí"/><KpiCard title="Tỷ lệ chi phí / doanh thu" value={`${revenue ? (total/revenue*100).toFixed(1).replace('.',',') : '0'}%`} change="Tham khảo" icon={Activity} tone="orange" note="theo dữ liệu đang có"/></div><div className="panel table-panel"><div className="panel-heading wrap-heading"><div><h2>Sổ chi phí</h2><p>Ghi nhận chi phí theo nhóm</p></div><div className="toolbar"><SearchBox value={query} onChange={setQuery}/><Button icon={Plus} onClick={()=>setModal('expense')}>Thêm chi phí</Button></div></div><div className="table-wrap"><table><thead><tr><th>Mã</th><th>Ngày</th><th>Nội dung</th><th>Danh mục</th><th>Số tiền</th></tr></thead><tbody>{rows.map(e=><tr key={e.id}><td className="code-cell">{e.id}</td><td>{e.date}</td><td><strong>{e.name}</strong></td><td><Badge>{e.category}</Badge></td><td className="amount-cell">{money(e.amount)}</td></tr>)}</tbody></table>{!rows.length&&<EmptyState/>}</div><div className="table-footer"><span>{rows.length} khoản chi</span><Button variant="secondary" icon={Download} onClick={()=>exportCsv(rows,'chi-phi.csv')}>Xuất CSV</Button></div></div></>; }
 
@@ -244,7 +251,7 @@ useEffect(() => {
 
   function renderReports() { return <><div className="report-cards"><div className="panel report-card"><span className="report-icon blue"><FileBarChart size={22}/></span><h2>Báo cáo doanh thu</h2><p>Tổng hợp đơn hàng và giá trị giao dịch trong danh sách demo.</p><Button variant="secondary" icon={Download} onClick={()=>exportCsv(orders,'bao-cao-doanh-thu.csv')}>Xuất báo cáo CSV</Button></div><div className="panel report-card"><span className="report-icon purple"><Package size={22}/></span><h2>Báo cáo tồn kho</h2><p>Danh sách sản phẩm, số lượng, giá vốn và ngưỡng tồn tối thiểu.</p><Button variant="secondary" icon={Download} onClick={()=>exportCsv(products,'bao-cao-ton-kho.csv')}>Xuất báo cáo CSV</Button></div><div className="panel report-card"><span className="report-icon green"><Wallet size={22}/></span><h2>Báo cáo chi phí</h2><p>Chi phí được ghi nhận theo ngày và nhóm chi phí.</p><Button variant="secondary" icon={Download} onClick={()=>exportCsv(expenses,'bao-cao-chi-phi.csv')}>Xuất báo cáo CSV</Button></div><div className="panel report-card"><span className="report-icon orange"><Target size={22}/></span><h2>Báo cáo quyết định</h2><p>Trạng thái và tiến độ các quyết định đã ghi nhận.</p><Button variant="secondary" icon={Download} onClick={()=>exportCsv(decisions,'bao-cao-quyet-dinh.csv')}>Xuất báo cáo CSV</Button></div></div><div className="demo-note"><ShieldCheck size={17}/><span>Các báo cáo được xuất thành CSV để mở bằng Excel. Số liệu phụ thuộc vào dữ liệu đang có trên trình duyệt.</span></div></>; }
 
-  function renderSettings() { return <div className="panel settings-panel"><div className="panel-heading"><div><h2>Thông tin hệ thống</h2><p>Cài đặt dành cho bản demo hiện tại</p></div><Settings size={20} className="muted"/></div><form onSubmit={e=>{e.preventDefault();saveStore('sd_settings',settings);notify('Đã lưu cài đặt trên trình duyệt.')}} className="settings-form"><label>Tên cửa hàng / doanh nghiệp<input value={settings.business} onChange={e=>setSettings({...settings,business:e.target.value})}/></label><label>Đơn vị tiền tệ<select value={settings.currency} onChange={e=>setSettings({...settings,currency:e.target.value})}><option value="VND">VND — Việt Nam đồng</option><option value="USD">USD — Đô la Mỹ</option></select></label><div className="setting-toggle"><div><strong>Cảnh báo tồn kho</strong><p>Hiển thị cảnh báo dựa trên ngưỡng tồn tối thiểu của sản phẩm.</p></div><input type="checkbox" checked={settings.alerts} onChange={e=>setSettings({...settings,alerts:e.target.checked})}/></div><Button type="submit" icon={Check}>Lưu cài đặt</Button></form><div className="settings-warning"><AlertTriangle size={17}/><span>Đây là cài đặt demo được lưu trong trình duyệt. Chưa có tài khoản, phân quyền hoặc đồng bộ dữ liệu đám mây.</span></div><Button variant="danger" icon={RotateCcw} onClick={()=>{if(confirm('Khôi phục toàn bộ dữ liệu demo ban đầu? Các thay đổi trên trình duyệt này sẽ bị mất.')){setProducts(initialProducts);setOrders(initialOrders);setCustomers(initialCustomers);setSuppliers(initialSuppliers);setExpenses(initialExpenses);setDecisions(initialDecisions);notify('Đã khôi phục dữ liệu demo ban đầu.')}}}>Khôi phục dữ liệu demo</Button></div>; }
+  function renderSettings() { return <div className="panel settings-panel"><div className="panel-heading"><div><h2>Thông tin hệ thống</h2><p>Cài đặt dành cho bản demo hiện tại</p></div><Settings size={20} className="muted"/></div><form onSubmit={e=>{e.preventDefault();saveStore('sd_settings',settings);notify('Đã lưu cài đặt trên trình duyệt.')}} className="settings-form"><label>Tên cửa hàng / doanh nghiệp<input value={settings.business} onChange={e=>setSettings({...settings,business:e.target.value})}/></label><label>Đơn vị tiền tệ<select value={settings.currency} onChange={e=>setSettings({...settings,currency:e.target.value})}><option value="VND">VND — Việt Nam đồng</option><option value="USD">USD — Đô la Mỹ</option></select></label><div className="setting-toggle"><div><strong>Cảnh báo tồn kho</strong><p>Hiển thị cảnh báo dựa trên ngưỡng tồn tối thiểu của sản phẩm.</p></div><input type="checkbox" checked={settings.alerts} onChange={e=>setSettings({...settings,alerts:e.target.checked})}/></div><Button type="submit" icon={Check}>Lưu cài đặt</Button></form><div className="settings-warning"><AlertTriangle size={17}/><span>Supabase chỉ đọc sản phẩm mẫu. Mọi chỉnh sửa demo lưu trong trình duyệt; không đồng bộ giữa thiết bị và không dùng dữ liệu thật.</span></div><Button variant="danger" icon={RotateCcw} onClick={()=>{if(confirm('Khôi phục toàn bộ dữ liệu demo ban đầu? Các thay đổi trên trình duyệt này sẽ bị mất.')){localStorage.removeItem('sd_products_demo_v2');setProducts(productBase);setOrders(initialOrders);setCustomers(initialCustomers);setSuppliers(initialSuppliers);setExpenses(initialExpenses);setDecisions(initialDecisions);notify('Đã khôi phục dữ liệu mẫu. Tải lại trang nếu Supabase vừa thay đổi.')}}}>Khôi phục dữ liệu demo</Button></div>; }
 
   const renderPage = () => {
     if(page==='Tổng quan') return renderDashboard();
@@ -264,6 +271,8 @@ useEffect(() => {
   };
 
   const modalFields = {
+    'product-edit': { title:'Sửa sản phẩm', fields:[['name','Tên sản phẩm','text',true],['category','Danh mục','text',true],['price','Giá bán (VND)','number',true],['cost','Giá vốn (VND)','number',true],['stock','Số lượng tồn','number',true],['min','Ngưỡng tồn tối thiểu','number',true],['supplier','Nhà cung cấp','text',false]] },
+    supplier: { title:'Thêm nhà cung cấp', fields:[['name','Tên nhà cung cấp','text',true],['contact','Liên hệ','text',false],['debt','Công nợ demo (VND)','number',false]] },
     product: { title:'Thêm sản phẩm', fields:[['name','Tên sản phẩm','text',true],['category','Danh mục','text',true],['price','Giá bán (VND)','number',true],['cost','Giá vốn (VND)','number',true],['stock','Số lượng tồn','number',true],['min','Ngưỡng tồn tối thiểu','number',true],['supplier','Nhà cung cấp','text',false]] },
     order: { title:'Tạo đơn hàng', fields:[['customer','Tên khách hàng','text',true],['items','Sản phẩm / số lượng','text',false],['total','Tổng tiền (VND)','number',true],['status','Trạng thái','select',true]] },
     customer: { title:'Thêm khách hàng', fields:[['name','Họ và tên','text',true],['phone','Số điện thoại','tel',true],['email','Email','email',false]] },
@@ -275,18 +284,18 @@ useEffect(() => {
     {mobileNav && <div className="mobile-overlay" onClick={()=>setMobileNav(false)}/>}
     <aside className={`sidebar ${mobileNav?'sidebar-open':''}`}>
       <div className="brand"><div className="brand-mark"><BrainCircuit size={24}/></div><div><div className="brand-name">SmartDecision</div><div className="brand-subtitle">BUSINESS INTELLIGENCE</div></div><button className="mobile-close icon-button" onClick={()=>setMobileNav(false)}><X size={18}/></button></div>
-      <div className="workspace"><div className="workspace-avatar">SR</div><div className="workspace-copy"><strong>{settings.business || 'Cửa hàng Smart Retail'}</strong><span>Không gian làm việc</span></div><ChevronDown size={15}/></div>
+      <div className="workspace"><div className="workspace-avatar">SR</div><div className="workspace-copy"><strong>{settings.business || 'Cửa hàng Smart Retail'}</strong><span>Không gian demo · Supabase đọc dữ liệu</span></div><ChevronDown size={15}/></div>
       <nav className="nav-menu">{navGroups.map(group=><div className="nav-group" key={group.label}><div className="nav-group-label">{group.label}</div>{group.items.map(([label,Icon])=><button key={label} className={`nav-item ${page===label?'active':''}`} onClick={()=>go(label)}><Icon size={18}/><span>{label}</span>{label==='Cảnh báo kinh doanh'&&lowStock.length>0&&<span className="nav-count">{lowStock.length}</span>}</button>)}</div>)}</nav>
-      <div className="sidebar-bottom"><div className="help-card"><div className="help-icon"><Headphones size={18}/></div><div><strong>Cần trợ giúp?</strong><p>Hỏi trợ lý SmartDecision</p></div><button className="icon-button" onClick={()=>setAssistantOpen(true)}><ChevronRight size={16}/></button></div><div className="user-profile"><div className="user-avatar">AD</div><div className="user-copy"><strong>Quản trị viên</strong><span>Bản demo · Local</span></div><button className="icon-button" onClick={()=>go('Cài đặt')}><Settings size={17}/></button></div></div>
+      <div className="sidebar-bottom"><div className="help-card"><div className="help-icon"><Headphones size={18}/></div><div><strong>Cần trợ giúp?</strong><p>Hỏi trợ lý SmartDecision</p></div><button className="icon-button" onClick={()=>setAssistantOpen(true)}><ChevronRight size={16}/></button></div><div className="user-profile"><div className="user-avatar">AD</div><div className="user-copy"><strong>Quản trị viên</strong><span>Demo · lưu cục bộ</span></div><button className="icon-button" onClick={()=>go('Cài đặt')}><Settings size={17}/></button></div></div>
     </aside>
     <main className="main-area">
       <header className="topbar"><div className="topbar-left"><button className="mobile-menu icon-button" onClick={()=>setMobileNav(true)}><Menu size={20}/></button><div className="breadcrumb">SmartDecision <ChevronRight size={14}/> <strong>{page}</strong></div></div><div className="topbar-actions"><div className="system-status"><span/> Dữ liệu demo</div><button className="icon-button topbar-bell" title="Xem cảnh báo" onClick={()=>go('Cảnh báo kinh doanh')}><Bell size={18}/>{lowStock.length>0&&<i/>}</button><div className="topbar-divider"/><button className="profile-mini" onClick={()=>go('Cài đặt')}><span className="user-avatar small">AD</span><span>Quản trị viên</span><ChevronDown size={14}/></button></div></header>
       <div className="page-content"><SectionTitle eyebrow={eyebrow} title={title} subtitle={subtitle} action={page==='Tổng quan'?<div className="title-actions"><span className="date-chip"><CalendarDays size={15}/> 18/10/2026</span><Button variant="secondary" icon={Download} onClick={()=>exportCsv(orders,'tong-quan-don-hang.csv')}>Xuất dữ liệu</Button></div>:null}/>{renderPage()}</div>
-      <footer className="app-footer"><span>© 2026 SmartDecision</span><span><span className="footer-status"/> Bản demo · Dữ liệu lưu trên thiết bị</span></footer>
+      <footer className="app-footer"><span>© 2026 SmartDecision</span><span><span className="footer-status"/> Supabase chỉ đọc · thay đổi lưu trên thiết bị</span></footer>
     </main>
     <button className={`assistant-fab ${assistantOpen?'assistant-fab-open':''}`} onClick={()=>setAssistantOpen(!assistantOpen)} aria-label="Mở trợ lý AI">{assistantOpen?<X size={23}/>:<MessageCircle size={23}/>}<span>{assistantOpen?'Đóng trợ lý':'Trợ lý'}</span></button>
     {assistantOpen&&<div className="assistant-panel"><div className="assistant-head"><div className="assistant-avatar"><BrainCircuit size={20}/></div><div><strong>Trợ lý SmartDecision</strong><span><i/> Sẵn sàng hỗ trợ · Bản demo</span></div><button className="icon-button" onClick={()=>setAssistantOpen(false)}><X size={17}/></button></div><div className="assistant-disclaimer"><Sparkles size={14}/> Trợ lý quy tắc demo · Không thay thế tư vấn chuyên môn</div><div className="chat-messages">{chat.map((m,i)=><div className={`chat-message ${m.role}`} key={i}>{m.role==='assistant'&&<span className="chat-avatar"><BrainCircuit size={14}/></span>}<div>{m.text}</div></div>)}</div><div className="quick-prompts"><button onClick={()=>sendChat('Tình hình tồn kho thế nào?')}>Tình hình tồn kho</button><button onClick={()=>sendChat('Phân tích doanh thu')}>Phân tích doanh thu</button><button onClick={()=>sendChat('Có cảnh báo nào?')}>Cảnh báo</button></div><form className="chat-input-row" onSubmit={e=>{e.preventDefault();sendChat()}}><input value={chatInput} onChange={e=>setChatInput(e.target.value)} placeholder="Hỏi về hoạt động kinh doanh..."/><button type="button" className="chat-mic" title="Nhập giọng nói không được bật trong bản demo này" onClick={()=>notify('Nhập giọng nói cần trình duyệt hỗ trợ Web Speech API và được bổ sung riêng.')}><Mic size={17}/></button><button className="chat-send" type="submit" aria-label="Gửi"><Send size={17}/></button></form></div>}
-    {modal && modalFields[modal] && <Modal title={modalFields[modal].title} onClose={()=>setModal(null)}><form className="modal-form" onSubmit={submitModal}>{modalFields[modal].fields.map(([name,label,type,required])=><label key={name}>{label}{type==='textarea'?<textarea name={name} required={required} rows="3" placeholder={label}/>:type==='select'?<select name={name} defaultValue="Đang xử lý" required={required}><option>Đang xử lý</option><option>Hoàn thành</option><option>Đã hủy</option></select>:<input name={name} type={type} required={required} min={type==='number'?0:undefined} step={type==='number'?'1':undefined} placeholder={label}/>}</label>)}<div className="modal-actions"><Button variant="secondary" onClick={()=>setModal(null)}>Hủy</Button><Button type="submit" icon={Check}>Lưu thông tin</Button></div></form></Modal>}
+    {modal && modalFields[modal] && <Modal title={modalFields[modal].title} onClose={()=>{setModal(null);setEditProduct(null)}}><form className="modal-form" onSubmit={submitModal}>{modalFields[modal].fields.map(([name,label,type,required])=><label key={name}>{label}{type==='textarea'?<textarea name={name} required={required} rows="3" placeholder={label}/>:type==='select'?<select name={name} defaultValue="Đang xử lý" required={required}><option>Đang xử lý</option><option>Hoàn thành</option><option>Đã hủy</option></select>:<input key={`${modal}-${editProduct?.id || ''}`} name={name} defaultValue={modal === 'product-edit' ? (editProduct?.[name] ?? '') : ''} type={type} required={required} min={type==='number'?0:undefined} step={type==='number'?'1':undefined} placeholder={label}/>}</label>)}<div className="modal-actions"><Button variant="secondary" onClick={()=>setModal(null)}>Hủy</Button><Button type="submit" icon={Check}>Lưu thông tin</Button></div></form></Modal>}
     {toast&&<div className="toast"><Check size={17}/>{toast}</div>}
   </div>;
 }
