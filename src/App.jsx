@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { supabase } from './supabaseClient';
 import {
   Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BarChart3, Bell, Boxes,
   BrainCircuit, BriefcaseBusiness, Building2, CalendarDays, Check, ChevronDown,
@@ -68,7 +69,8 @@ function Modal({ title, onClose, children }) { return <div className="modal-back
 export default function App() {
   const [page, setPage] = useState('Tổng quan');
   const [mobileNav, setMobileNav] = useState(false);
-  const [products, setProducts] = useState(() => readStore('sd_products', initialProducts));
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [orders, setOrders] = useState(() => readStore('sd_orders', initialOrders));
   const [customers, setCustomers] = useState(() => readStore('sd_customers', initialCustomers));
   const [suppliers, setSuppliers] = useState(() => readStore('sd_suppliers', initialSuppliers));
@@ -86,7 +88,42 @@ export default function App() {
   const [range, setRange] = useState('30 ngày gần nhất');
   const [settings, setSettings] = useState(() => readStore('sd_settings', { business: 'Cửa hàng Smart Retail', currency: 'VND', alerts: true }));
 
-  useEffect(() => saveStore('sd_products', products), [products]);
+
+useEffect(() => {
+  let active = true;
+
+  async function loadProducts() {
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, name, category, price, cost, stock, min, supplier')
+      .order('id');
+
+    if (!active) return;
+
+    if (error) {
+      console.error('Lỗi Supabase:', error.message);
+      setToast('Không thể tải sản phẩm từ Supabase.');
+    } else {
+      setProducts(
+        (data || []).map(p => ({
+          ...p,
+          price: Number(p.price),
+          cost: Number(p.cost),
+          stock: Number(p.stock),
+          min: Number(p.min)
+        }))
+      );
+    }
+
+    setProductsLoading(false);
+  }
+
+  loadProducts();
+
+  return () => {
+    active = false;
+  };
+}, []);
   useEffect(() => saveStore('sd_orders', orders), [orders]);
   useEffect(() => saveStore('sd_customers', customers), [customers]);
   useEffect(() => saveStore('sd_suppliers', suppliers), [suppliers]);
