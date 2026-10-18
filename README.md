@@ -31,3 +31,14 @@ Dữ liệu đơn hàng là demo, không có lịch sử số lượng bán theo
 - Đây là bản demo kết nối dữ liệu sản phẩm chỉ đọc; các chức năng CRUD và quan hệ đơn hàng/khách hàng vẫn nằm trong localStorage của một trình duyệt, không phải hệ thống nhiều người dùng.
 - Cần cấu hình GEMINI_API_KEY để chatbot AI hoạt động; không thể nhúng API key vào ZIP.
 - Dữ liệu demo hiện có chưa đủ cho dự báo thống kê đáng tin cậy; mô phỏng là các giả định, không phải dự báo.
+
+## Bản nâng cấp giao diện và logic (19/10/2026)
+- Cải thiện kích thước chữ, tương phản, nút, bảng, modal và khung chatbot trên màn hình nhỏ.
+- Đơn hàng mới yêu cầu thông tin liên hệ khách mới; chặn tạo trùng khách theo số điện thoại/email.
+- Khách hàng hiển thị số đơn và chi tiêu tính từ đơn thực tế (đơn mẫu cũ được ghép theo tên khi thiếu ID, có thể trùng tên).
+- Nhà cung cấp tính số sản phẩm liên kết thay vì dùng số cố định; ngăn xóa nhà cung cấp còn liên kết sản phẩm.
+- Ngăn xóa sản phẩm có lịch sử dòng đơn hàng; kiểm tra giá vốn, giá bán, tồn và ngưỡng nhập là số hợp lệ.
+- Phân tích tồn kho hiển thị số vốn cần để bù tới ngưỡng tối thiểu; không coi đó là số lượng đặt tối ưu.
+- Mô phỏng lấy doanh thu đơn hoàn thành và giá vốn có dữ liệu, chi phí marketing từ sổ chi phí; nếu đơn mẫu thiếu giá vốn, mô phỏng chưa phải lợi nhuận đầy đủ.
+- **Chưa triển khai đồng bộ ghi Supabase** vì Supabase hiện chỉ cấp quyền đọc công khai. Cần xác thực, RLS và thiết kế cơ sở dữ liệu trước khi bật ghi an toàn.
+- **Chưa xác nhận build và kiểm thử giao diện trên Netlify** trong môi trường này do không cài được dependencies. Hãy kiểm tra Deploy log và chạy các tình huống nghiệp vụ trước khi nộp.

@@ -20,3 +20,35 @@
 .order-line select,.order-line input{min-width:0;width:100%;border:1px solid #dbe4ef;border-radius:8px;padding:10px}
 .order-total{display:flex;justify-content:space-between;align-items:center;padding:14px;background:#eff6ff;border-radius:10px;color:#1d4ed8}
 .order-total strong{font-size:19px}
+
+/* SmartDecision UI refinement: accessibility, spacing, hierarchy */
+:root{--sd-focus:#2563eb}
+body{font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,select,input,textarea{font:inherit}
+button{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background-color .15s ease}
+button:hover:not(:disabled){filter:brightness(.97)}
+button:active:not(:disabled){transform:translateY(1px)}
+:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+.panel,.kpi-card{border-radius:16px;box-shadow:0 5px 22px rgba(22,47,85,.045)}
+.table-wrap table{font-size:13px}
+.table-wrap th{font-size:11px;letter-spacing:.035em;padding:14px 16px}
+.table-wrap td{font-size:13px;padding:14px 16px}
+.table-wrap td small{font-size:11px}
+.badge{font-size:11px;padding:6px 10px;border-radius:20px}
+.panel-heading p,.section-title p,.supplier-main>p,.report-card p,.insight-item p,.alert-copy p,.demo-note,.caveat,.recommendation p{font-size:13px;line-height:1.65}
+.kpi-top,.kpi-foot,.summary-strip span,.slider-field p,.range-labels{font-size:12px}
+.kpi-value{font-variant-numeric:tabular-nums}
+.modal{width:min(620px,100%);border-radius:20px;padding:26px}
+.modal-form label,.settings-form label{font-size:13px}
+.modal-form input,.modal-form select,.modal-form textarea{font-size:14px}
+.assistant-panel{width:min(440px,calc(100vw - 24px));border-radius:18px}
+.chat-message>div{font-size:13px;line-height:1.7}
+.quick-prompts button{font-size:12px;padding:8px 10px}
+.assistant-disclaimer,.assistant-head span{font-size:11px}
+.assistant-fab{box-shadow:0 12px 30px #1d4ed855}
+.decision-summary{background:linear-gradient(115deg,#eff6ff,#f5f3ff);border:1px solid #dbeafe;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:5px;margin:12px 0}
+.decision-summary strong{font-size:13px;color:#475569}
+.decision-summary span{font-size:23px;font-weight:800;color:#1d4ed8}
+.decision-summary small{font-size:12px;color:#64748b;line-height:1.5}
+.compact-select{min-width:125px;padding:8px;border:1px solid #cbd5e1;border-radius:9px;background:#fff}
+@media(max-width:600px){.table-wrap table{font-size:12px}.kpi-grid,.kpi-grid.three-kpi{grid-template-columns:1fr 1fr}.assistant-panel{right:8px;bottom:145px!important;height:min(620px,calc(100dvh - 165px))}.modal{padding:18px}.order-line{grid-template-columns:minmax(0,1fr) 70px 30px}}
