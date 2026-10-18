@@ -3,3 +3,20 @@
 @media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1.3fr 1fr}.page-content{padding:24px}}
 @media(max-width:900px){.sidebar{transform:translateX(-100%);transition:transform .2s}.sidebar-open{transform:translateX(0)}.mobile-menu,.mobile-overlay{display:block}.mobile-overlay{position:fixed;inset:0;background:#102b4c88;z-index:25}.main-area{margin-left:0}.dashboard-grid,.simulation-layout,.two-col,.report-cards{grid-template-columns:1fr}.topbar{padding:0 18px}.page-content{padding:20px}.topbar-actions .profile-mini,.topbar-divider{display:none}}
 @media(max-width:600px){.kpi-grid,.kpi-grid.three-kpi{grid-template-columns:1fr 1fr;gap:9px}.kpi-card{padding:13px}.kpi-value{font-size:18px}.summary-strip{grid-template-columns:1fr 1fr}.summary-strip>div:nth-child(2){border-right:0}.section-title{align-items:start;flex-direction:column}.section-title h1{font-size:23px}.page-content{padding:16px}.panel{padding:14px}.table-panel{padding:0}.category-row{grid-template-columns:1fr}.app-footer{padding:15px;flex-wrap:wrap}}
+
+/* AI DSS v3: avoid overlapping the Netlify badge */
+.assistant-fab{bottom:100px!important;z-index:45}
+.assistant-panel{bottom:162px!important;z-index:44;height:min(600px,calc(100vh - 190px))}
+.ai-access{padding:9px 13px;background:#f5f9ff;border-bottom:1px solid #dbe4ef;display:flex;flex-direction:column;gap:5px}
+.ai-access label{font-size:10px;font-weight:700;color:#53657a}
+.ai-access input{border:1px solid #dbe4ef;border-radius:7px;padding:9px;font-size:11px}
+.chat-send:disabled{opacity:.5;cursor:wait}
+.modal-form input[type=number]{appearance:textfield;-moz-appearance:textfield}
+.modal-form input[type=number]::-webkit-inner-spin-button,.modal-form input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+@media(max-width:650px){.assistant-fab{bottom:92px!important}.assistant-panel{right:10px;bottom:150px!important;height:min(560px,calc(100vh - 170px))}}
+
+/* Order entry */
+.order-line{display:grid;grid-template-columns:minmax(0,1fr) 78px 32px;gap:8px;align-items:center}
+.order-line select,.order-line input{min-width:0;width:100%;border:1px solid #dbe4ef;border-radius:8px;padding:10px}
+.order-total{display:flex;justify-content:space-between;align-items:center;padding:14px;background:#eff6ff;border-radius:10px;color:#1d4ed8}
+.order-total strong{font-size:19px}

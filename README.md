@@ -1,22 +1,38 @@
-# SmartDecision — bản demo hoàn chỉnh
+# SmartDecision DSS + AI (demo)
 
-Ứng dụng React/Vite cho đồ án hệ thống thông tin quản lý bán lẻ.
+## Tính năng
+- Quản trị sản phẩm/tồn kho, đơn hàng, khách hàng, nhà cung cấp, chi phí, báo cáo, quyết định.
+- Tạo đơn hàng có chọn khách hàng cũ hoặc tạo hồ sơ khách hàng mới; chọn nhiều sản phẩm, tính tổng tự động, chụp giá bán và giá vốn từng dòng.
+- Khi đơn chuyển sang Hoàn thành, trừ tồn kho; chuyển khỏi Hoàn thành, hoàn tồn kho. Đơn mẫu cũ không có chi tiết dòng hàng nên không thể tự điều chỉnh kho.
+- Thống kê khách hàng cập nhật từ các đơn liên kết; dữ liệu cũ thiếu customerId không thể ghép chính xác.
+- Lãi gộp chỉ được tính khi mọi đơn Hoàn thành có giá vốn từng dòng; nếu thiếu sẽ ghi rõ Chưa đủ dữ liệu.
+- Supabase chỉ đọc danh mục sản phẩm ban đầu; sửa/thêm/xóa demo lưu localStorage.
+- Chatbot AI thực gọi OpenAI từ **Netlify Function**; không có API key trong mã frontend.
+- AI phân tích dữ liệu tổng hợp, so sánh phương án, nêu giới hạn dữ liệu. Không gửi thông tin liên hệ khách hàng.
 
-## Triển khai
+## Cài đặt Netlify (dùng site hiện tại)
+Giữ nguyên VITE_SUPABASE_URL và VITE_SUPABASE_PUBLISHABLE_KEY đang hoạt động.
+Thêm các **Environment variables** tại Netlify > Project configuration > Environment variables:
 
-1. Sao lưu mã nguồn GitHub cũ, sau đó tải **nội dung bên trong thư mục ZIP** lên repository hiện tại, ghi đè các file trùng tên.
-2. Netlify build command: `npm run build`; publish directory: `dist`.
-3. Giữ nguyên `VITE_SUPABASE_URL` và `VITE_SUPABASE_PUBLISHABLE_KEY` đã thiết lập trên Netlify.
-4. Chờ Netlify Published và tải lại website.
+- `OPENAI_API_KEY`: khóa API OpenAI của bạn, loại secret; KHÔNG dùng `VITE_` và không đưa lên GitHub.
+- `AI_DEMO_ACCESS_CODE`: một mã riêng dài ít nhất 8 ký tự do bạn đặt; nhập mã này vào ô trong chatbot khi sử dụng. KHÔNG dùng API key làm mã.
+- `OPENAI_MODEL` (không bắt buộc): mặc định `gpt-4o-mini`.
 
-## Dữ liệu & bảo mật
+Sau khi thêm biến, **Trigger deploy** lại. API OpenAI có thể yêu cầu thiết lập billing/hạn mức và có chi phí theo lượt gọi; gói ChatGPT không tự bao gồm API.
 
-- Bảng `products` trên Supabase chỉ được đọc công khai (SELECT anon + RLS); không cấp INSERT/UPDATE/DELETE công khai.
-- Thêm/sửa/xóa sản phẩm, nhà cung cấp, đơn hàng, khách hàng, chi phí, quyết định được lưu trong localStorage trên thiết bị đang sử dụng.
-- Khôi phục dữ liệu demo tại Cài đặt; sản phẩm trở về snapshot Supabase vừa tải.
-- Không dùng dữ liệu cá nhân hoặc kinh doanh thật. Không có xác thực, phân quyền hay đồng bộ ghi giữa các máy.
-- Trợ lý hỏi đáp là logic quy tắc demo, không phải mô hình AI gọi API; nút mic chưa triển khai. Biểu đồ và mô phỏng có phần số liệu giả định.
+**Quan trọng:** Website không đăng nhập và Netlify Function công khai về mặt URL. Mã truy cập là biện pháp giới hạn cơ bản, không thay thế xác thực người dùng và rate limiting. Không công khai mã, giới hạn ngân sách API, chỉ dùng dữ liệu demo. Nếu triển khai thật, cần Netlify Identity/Auth, hạn mức, phân quyền và nhật ký truy cập.
 
-## Chạy cục bộ
+## Kiểm thử
+1. Truy cập trang Sản phẩm: kiểm tra 5 sản phẩm từ Supabase (hoặc dữ liệu demo localStorage).
+2. Mở chatbot, nhập AI_DEMO_ACCESS_CODE, hỏi: “Balo còn 6 chiếc, có nên nhập 4 hay 10 chiếc? Tính vốn và rủi ro.”
+3. Nếu hiện 503: chưa có biến môi trường. 403: mã truy cập sai. 429: hạn mức AI. 502: kiểm tra API key/model/billing.
+4. Kiểm tra dashboard: lợi nhuận thực tế hiện 'Chưa đủ dữ liệu' vì đơn hàng chưa có giá vốn từng dòng.
 
-`npm install` rồi `npm run dev`. Tạo `.env.local` với hai biến VITE nếu muốn đọc Supabase ở máy riêng.
+## Giới hạn
+Dữ liệu đơn hàng là demo, không có lịch sử số lượng bán theo SKU; do đó không tuyên bố có dự báo nhu cầu thống kê đáng tin cậy. Các quyết định AI chỉ hỗ trợ tham khảo.
+
+## Kiểm chứng và hạn chế
+- Chưa chạy được `npm run build` trong môi trường đóng gói này do không tải được dependencies. Sau khi đẩy GitHub, kiểm tra build Netlify trước khi dùng.
+- Đây là bản demo kết nối dữ liệu sản phẩm chỉ đọc; các chức năng CRUD và quan hệ đơn hàng/khách hàng vẫn nằm trong localStorage của một trình duyệt, không phải hệ thống nhiều người dùng.
+- Cần cấu hình OPENAI_API_KEY và AI_DEMO_ACCESS_CODE để chatbot AI hoạt động; không thể nhúng API key vào ZIP.
+- Dữ liệu demo hiện có chưa đủ cho dự báo thống kê đáng tin cậy; mô phỏng là các giả định, không phải dự báo.
