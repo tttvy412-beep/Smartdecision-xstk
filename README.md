@@ -7,26 +7,21 @@
 - Thống kê khách hàng cập nhật từ các đơn liên kết; dữ liệu cũ thiếu customerId không thể ghép chính xác.
 - Lãi gộp chỉ được tính khi mọi đơn Hoàn thành có giá vốn từng dòng; nếu thiếu sẽ ghi rõ Chưa đủ dữ liệu.
 - Supabase chỉ đọc danh mục sản phẩm ban đầu; sửa/thêm/xóa demo lưu localStorage.
-- Chatbot AI thực gọi OpenAI từ **Netlify Function**; không có API key trong mã frontend.
+- Chatbot AI thực gọi Google Gemini từ **Netlify Function**; không có API key trong mã frontend.
 - AI phân tích dữ liệu tổng hợp, so sánh phương án, nêu giới hạn dữ liệu. Không gửi thông tin liên hệ khách hàng.
 
-## Cài đặt Netlify (dùng site hiện tại)
-Giữ nguyên VITE_SUPABASE_URL và VITE_SUPABASE_PUBLISHABLE_KEY đang hoạt động.
-Thêm các **Environment variables** tại Netlify > Project configuration > Environment variables:
+## Cấu hình Gemini AI miễn phí (một lần)
+1. Truy cập Google AI Studio (https://aistudio.google.com/apikey), đăng nhập và tạo API key trong dự án hỗ trợ Free Tier. Kiểm tra hạn mức và điều kiện hiện hành của Google. Không bật thanh toán nếu bạn chỉ muốn dùng miễn phí.
+2. Trong Netlify → Project configuration → Environment variables, thêm `GEMINI_API_KEY` (secret, KHÔNG có tiền tố VITE_). Có thể thêm `GEMINI_MODEL` nếu cần chọn mô hình hỗ trợ Free Tier; mặc định `gemini-2.5-flash`, tùy tình trạng cung cấp của Google.
+3. Trigger deploy lại. Mở chatbot và hỏi ngay, không cần mã truy cập.
+4. Giữ nguyên VITE_SUPABASE_URL và VITE_SUPABASE_PUBLISHABLE_KEY.
 
-- `OPENAI_API_KEY`: khóa API OpenAI của bạn, loại secret; KHÔNG dùng `VITE_` và không đưa lên GitHub.
-- `AI_DEMO_ACCESS_CODE`: một mã riêng dài ít nhất 8 ký tự do bạn đặt; nhập mã này vào ô trong chatbot khi sử dụng. KHÔNG dùng API key làm mã.
-- `OPENAI_MODEL` (không bắt buộc): mặc định `gpt-4o-mini`.
-
-Sau khi thêm biến, **Trigger deploy** lại. API OpenAI có thể yêu cầu thiết lập billing/hạn mức và có chi phí theo lượt gọi; gói ChatGPT không tự bao gồm API.
-
-**Quan trọng:** Website không đăng nhập và Netlify Function công khai về mặt URL. Mã truy cập là biện pháp giới hạn cơ bản, không thay thế xác thực người dùng và rate limiting. Không công khai mã, giới hạn ngân sách API, chỉ dùng dữ liệu demo. Nếu triển khai thật, cần Netlify Identity/Auth, hạn mức, phân quyền và nhật ký truy cập.
+**Lưu ý chi phí và bảo mật:** Không thể bảo đảm Free Tier luôn có sẵn hoặc không đổi hạn mức. Đảm bảo dự án Google AI Studio của bạn đang ở Free Tier và không bật billing. Netlify cũng có giới hạn miễn phí riêng. Chatbot không có mã truy cập, endpoint công khai nên người khác có thể dùng hạn mức của bạn. Có giới hạn tạm thời 5 yêu cầu/phút/IP trong một instance, KHÔNG phải bảo vệ chống lạm dụng đáng tin cậy; nếu đưa vào sử dụng thực tế cần rate limit bền vững, xác thực và giám sát quota.
 
 ## Kiểm thử
-1. Truy cập trang Sản phẩm: kiểm tra 5 sản phẩm từ Supabase (hoặc dữ liệu demo localStorage).
-2. Mở chatbot, nhập AI_DEMO_ACCESS_CODE, hỏi: “Balo còn 6 chiếc, có nên nhập 4 hay 10 chiếc? Tính vốn và rủi ro.”
-3. Nếu hiện 503: chưa có biến môi trường. 403: mã truy cập sai. 429: hạn mức AI. 502: kiểm tra API key/model/billing.
-4. Kiểm tra dashboard: lợi nhuận thực tế hiện 'Chưa đủ dữ liệu' vì đơn hàng chưa có giá vốn từng dòng.
+1. Kiểm tra sản phẩm, đơn hàng liên kết khách hàng và tồn kho.
+2. Sau khi cấu hình GEMINI_API_KEY và deploy, mở chatbot và hỏi: “Balo còn 6 chiếc, nên nhập 4 hay 10 chiếc? Tính vốn và rủi ro.”
+3. Nếu 503: thiếu khóa. Nếu 429: giới hạn sử dụng. Nếu 502: kiểm tra key, mô hình và quota.
 
 ## Giới hạn
 Dữ liệu đơn hàng là demo, không có lịch sử số lượng bán theo SKU; do đó không tuyên bố có dự báo nhu cầu thống kê đáng tin cậy. Các quyết định AI chỉ hỗ trợ tham khảo.
@@ -34,5 +29,5 @@ Dữ liệu đơn hàng là demo, không có lịch sử số lượng bán theo
 ## Kiểm chứng và hạn chế
 - Chưa chạy được `npm run build` trong môi trường đóng gói này do không tải được dependencies. Sau khi đẩy GitHub, kiểm tra build Netlify trước khi dùng.
 - Đây là bản demo kết nối dữ liệu sản phẩm chỉ đọc; các chức năng CRUD và quan hệ đơn hàng/khách hàng vẫn nằm trong localStorage của một trình duyệt, không phải hệ thống nhiều người dùng.
-- Cần cấu hình OPENAI_API_KEY và AI_DEMO_ACCESS_CODE để chatbot AI hoạt động; không thể nhúng API key vào ZIP.
+- Cần cấu hình GEMINI_API_KEY để chatbot AI hoạt động; không thể nhúng API key vào ZIP.
 - Dữ liệu demo hiện có chưa đủ cho dự báo thống kê đáng tin cậy; mô phỏng là các giả định, không phải dự báo.

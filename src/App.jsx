@@ -86,8 +86,7 @@ export default function App() {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [aiBusy, setAiBusy] = useState(false);
-  const [aiAccessCode, setAiAccessCode] = useState(() => sessionStorage.getItem('sd_ai_code') || '');
-  const [chat, setChat] = useState([{ role: 'assistant', text: 'Xin chào! Tôi là trợ lý AI phân tích quyết định. Hãy nhập mã truy cập AI ở ô bên dưới, sau đó hỏi về tồn kho, vốn nhập hàng, doanh thu hoặc so sánh phương án. Tôi sẽ nêu dữ liệu, tính toán, giả định và rủi ro.' }]);
+  const [chat, setChat] = useState([{ role: 'assistant', text: 'Xin chào! Tôi là trợ lý AI phân tích quyết định. Hãy hỏi về tồn kho, vốn nhập hàng, doanh thu hoặc so sánh phương án. Tôi sẽ nêu dữ liệu, tính toán, giả định và rủi ro.' }]);
   const [simPrice, setSimPrice] = useState(5);
   const [simMarketing, setSimMarketing] = useState(2);
   const [simCost, setSimCost] = useState(3);
@@ -154,10 +153,6 @@ useEffect(() => {
     if (!prompt || aiBusy) return;
     setChatInput('');
     setChat(prev => [...prev, { role: 'user', text: prompt }]);
-    if (!aiAccessCode.trim()) {
-      setChat(prev => [...prev, { role: 'assistant', text: 'Bạn cần nhập mã truy cập AI (do bạn tự đặt trong Netlify) trước khi sử dụng. Mã này giúp hạn chế người lạ dùng API trả phí.' }]);
-      return;
-    }
     setAiBusy(true);
     try {
       // Chỉ gửi dữ liệu kinh doanh cần thiết; không gửi tên, email, điện thoại khách hàng.
@@ -171,14 +166,14 @@ useEffect(() => {
         limitations: 'Đơn mẫu cũ không có dòng hàng cấu trúc; chỉ đơn mới có số lượng theo SKU và giá vốn tại thời điểm bán. Không ngoại suy dự báo nếu lịch sử ngắn.'
       };
       const response = await fetch('/.netlify/functions/decision-ai', {
-        method:'POST', headers:{'Content-Type':'application/json','X-Demo-Access-Code':aiAccessCode.trim()},
+        method:'POST', headers:{'Content-Type':'application/json'},
         body:JSON.stringify({question:prompt,context,history:chat.slice(-6).map(m=>({role:m.role,content:m.text}))})
       });
       const payload = await response.json().catch(()=>({}));
       if (!response.ok) throw new Error(payload.error || `Lỗi kết nối AI (${response.status}).`);
       setChat(prev => [...prev, {role:'assistant',text:payload.answer || 'AI chưa trả lời được. Vui lòng thử lại.'}]);
     } catch(err) {
-      setChat(prev => [...prev, {role:'assistant',text:`Không thể gọi AI: ${err.message}\nKiểm tra OPENAI_API_KEY và AI_DEMO_ACCESS_CODE trong Netlify → Environment variables; sau đó deploy lại.`}]);
+      setChat(prev => [...prev, {role:'assistant',text:`Không thể gọi AI: ${err.message}\nKiểm tra GEMINI_API_KEY trong Netlify → Environment variables; sau đó deploy lại.`}]);
     } finally { setAiBusy(false); }
   }
 
@@ -353,7 +348,7 @@ useEffect(() => {
       <footer className="app-footer"><span>© 2026 SmartDecision</span><span><span className="footer-status"/> Supabase chỉ đọc · thay đổi lưu trên thiết bị</span></footer>
     </main>
     <button className={`assistant-fab ${assistantOpen?'assistant-fab-open':''}`} onClick={()=>setAssistantOpen(!assistantOpen)} aria-label="Mở trợ lý AI">{assistantOpen?<X size={23}/>:<MessageCircle size={23}/>}<span>{assistantOpen?'Đóng trợ lý':'Trợ lý'}</span></button>
-    {assistantOpen&&<div className="assistant-panel"><div className="assistant-head"><div className="assistant-avatar"><BrainCircuit size={20}/></div><div><strong>Trợ lý SmartDecision</strong><span><i/> Sẵn sàng hỗ trợ · Bản demo</span></div><button className="icon-button" onClick={()=>setAssistantOpen(false)}><X size={17}/></button></div><div className="assistant-disclaimer"><Sparkles size={14}/> AI thực qua Netlify Function · Dữ liệu demo · Kiểm chứng trước khi quyết định</div><div className="ai-access"><label htmlFor="ai-code">Mã truy cập AI (không phải API key)</label><input id="ai-code" type="password" autoComplete="off" value={aiAccessCode} onChange={e=>{setAiAccessCode(e.target.value);sessionStorage.setItem('sd_ai_code',e.target.value)}} placeholder="Nhập mã bạn đã cấu hình trên Netlify" /></div><div className="chat-messages">{chat.map((m,i)=><div className={`chat-message ${m.role}`} key={i}>{m.role==='assistant'&&<span className="chat-avatar"><BrainCircuit size={14}/></span>}<div>{m.text}</div></div>)}</div><div className="quick-prompts"><button onClick={()=>sendChat('Đánh giá rủi ro tồn kho, đề xuất số lượng nhập và vốn cần cho từng phương án')}>Tình hình tồn kho</button><button onClick={()=>sendChat('Phân tích doanh thu và giới hạn dữ liệu, cần thêm gì để tính lợi nhuận thực tế?')}>Phân tích doanh thu</button><button onClick={()=>sendChat('Xếp hạng 3 quyết định quản trị ưu tiên, nêu lý do và rủi ro')}>Cảnh báo</button></div><form className="chat-input-row" onSubmit={e=>{e.preventDefault();sendChat()}}><input value={chatInput} onChange={e=>setChatInput(e.target.value)} placeholder={aiBusy ? "AI đang phân tích..." : "Hỏi AI về quyết định kinh doanh..."}/><button type="button" className="chat-mic" title="Nhập giọng nói không được bật trong bản demo này" onClick={()=>notify('Nhập giọng nói cần trình duyệt hỗ trợ Web Speech API và được bổ sung riêng.')}><Mic size={17}/></button><button className="chat-send" type="submit" disabled={aiBusy} aria-label="Gửi"><Send size={17}/></button></form></div>}
+    {assistantOpen&&<div className="assistant-panel"><div className="assistant-head"><div className="assistant-avatar"><BrainCircuit size={20}/></div><div><strong>Trợ lý SmartDecision</strong><span><i/> Sẵn sàng hỗ trợ · Bản demo</span></div><button className="icon-button" onClick={()=>setAssistantOpen(false)}><X size={17}/></button></div><div className="assistant-disclaimer"><Sparkles size={14}/> Gemini AI qua Netlify Function · Dữ liệu demo · Kiểm chứng trước khi quyết định</div><div className="chat-messages">{chat.map((m,i)=><div className={`chat-message ${m.role}`} key={i}>{m.role==='assistant'&&<span className="chat-avatar"><BrainCircuit size={14}/></span>}<div>{m.text}</div></div>)}</div><div className="quick-prompts"><button onClick={()=>sendChat('Đánh giá rủi ro tồn kho, đề xuất số lượng nhập và vốn cần cho từng phương án')}>Tình hình tồn kho</button><button onClick={()=>sendChat('Phân tích doanh thu và giới hạn dữ liệu, cần thêm gì để tính lợi nhuận thực tế?')}>Phân tích doanh thu</button><button onClick={()=>sendChat('Xếp hạng 3 quyết định quản trị ưu tiên, nêu lý do và rủi ro')}>Cảnh báo</button></div><form className="chat-input-row" onSubmit={e=>{e.preventDefault();sendChat()}}><input value={chatInput} onChange={e=>setChatInput(e.target.value)} placeholder={aiBusy ? "AI đang phân tích..." : "Hỏi AI về quyết định kinh doanh..."}/><button type="button" className="chat-mic" title="Nhập giọng nói không được bật trong bản demo này" onClick={()=>notify('Nhập giọng nói cần trình duyệt hỗ trợ Web Speech API và được bổ sung riêng.')}><Mic size={17}/></button><button className="chat-send" type="submit" disabled={aiBusy} aria-label="Gửi"><Send size={17}/></button></form></div>}
     {modal==='order-smart' && <Modal title="Tạo đơn hàng liên kết khách hàng và tồn kho" onClose={()=>setModal(null)}><form className="modal-form" onSubmit={createOrder}>
       <label>Chọn khách hàng đã có<select value={orderDraft.customerId} onChange={e=>{const c=customers.find(x=>x.id===e.target.value);setOrderDraft(d=>({...d,customerId:c?.id||'',customerName:c?.name||'',phone:c?.phone||'',email:c?.email||''}))}}><option value="">+ Khách hàng mới</option>{customers.map(c=><option key={c.id} value={c.id}>{c.name} — {c.phone}</option>)}</select></label>
       <label>Tên khách hàng<input required value={orderDraft.customerName} readOnly={!!orderDraft.customerId} onChange={e=>setOrderDraft(d=>({...d,customerName:e.target.value}))} placeholder="Nhập tên hoặc chọn khách hàng"/></label>
