@@ -42,3 +42,12 @@ Dữ liệu đơn hàng là demo, không có lịch sử số lượng bán theo
 - Mô phỏng lấy doanh thu đơn hoàn thành và giá vốn có dữ liệu, chi phí marketing từ sổ chi phí; nếu đơn mẫu thiếu giá vốn, mô phỏng chưa phải lợi nhuận đầy đủ.
 - **Chưa triển khai đồng bộ ghi Supabase** vì Supabase hiện chỉ cấp quyền đọc công khai. Cần xác thực, RLS và thiết kế cơ sở dữ liệu trước khi bật ghi an toàn.
 - **Chưa xác nhận build và kiểm thử giao diện trên Netlify** trong môi trường này do không cài được dependencies. Hãy kiểm tra Deploy log và chạy các tình huống nghiệp vụ trước khi nộp.
+
+## Bản vá kiểm tra nghiệp vụ 19/10/2026
+- Đơn hàng mẫu cũ: có thể đổi trạng thái, nhưng **không tự trừ/hoàn tồn kho** vì thiếu SKU và số lượng được xác thực. Đây là chủ đích bảo vệ dữ liệu, không phải liên kết kho hoàn chỉnh.
+- Đơn hàng mới: tiếp tục tự kiểm tra tồn kho khi hoàn thành.
+- Trạng thái đơn có màu xanh/vàng/đỏ; chọn nhà cung cấp từ danh sách đã có khi thêm/sửa sản phẩm; ngăn trùng tên nhà cung cấp.
+- Micro sử dụng Web Speech API của trình duyệt (thường Chrome/Edge), cần HTTPS và quyền micro; không đảm bảo mọi trình duyệt hỗ trợ.
+- Gemini: `GEMINI_API_KEY` ở Netlify, `GEMINI_MODEL` tùy chọn (mặc định `gemini-2.5-flash`). Nếu API trả lỗi 400/404, kiểm tra mô hình hiện được tài khoản hỗ trợ và deploy lại. Không có bảo đảm hạn mức miễn phí cho mọi tài khoản.
+- Dữ liệu chỉnh sửa lưu localStorage theo trình duyệt; không đồng bộ giữa thiết bị. Không công khai quyền ghi Supabase nếu chưa có xác thực và chính sách RLS phù hợp.
+- Cần kiểm tra thực tế sau deploy: tạo đơn, chuyển trạng thái, F5, micro, AI và trên điện thoại. Không gửi khóa API trong ảnh chụp hoặc ZIP.

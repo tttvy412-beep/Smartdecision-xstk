@@ -52,3 +52,12 @@ button:active:not(:disabled){transform:translateY(1px)}
 .decision-summary small{font-size:12px;color:#64748b;line-height:1.5}
 .compact-select{min-width:125px;padding:8px;border:1px solid #cbd5e1;border-radius:9px;background:#fff}
 @media(max-width:600px){.table-wrap table{font-size:12px}.kpi-grid,.kpi-grid.three-kpi{grid-template-columns:1fr 1fr}.assistant-panel{right:8px;bottom:145px!important;height:min(620px,calc(100dvh - 165px))}.modal{padding:18px}.order-line{grid-template-columns:minmax(0,1fr) 70px 30px}}
+
+/* Consistent interactive order status palette */
+.order-status {font-weight:700!important;border-radius:999px!important;cursor:pointer!important;min-width:135px;border:1px solid transparent!important;padding:9px 12px!important;}
+.status-done{background:#e6f7ed!important;color:#137344!important;border-color:#b8e8ca!important;}
+.status-pending{background:#fff4df!important;color:#945700!important;border-color:#f4d59a!important;}
+.status-cancel{background:#fdeaea!important;color:#a32b35!important;border-color:#f4c0c5!important;}
+.order-status:focus-visible,.chat-mic:focus-visible{outline:3px solid #79a7ff!important;outline-offset:2px;}
+.table-wrap tbody tr:hover{background:#f5f8ff;}
+@media(max-width:680px){.order-status{min-width:115px;padding:7px!important}}
