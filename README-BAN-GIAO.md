@@ -1,75 +1,69 @@
-# SmartDecision v3.0 — Phiên bản triển khai độc lập (bán lẻ MIS + DSS)
+# SmartDecision v4.0 — bản tối giản, dữ liệu liên thông, DSS có quy trình
 
-## Tình trạng bàn giao — ngày 20/10/2026
+Ngày bàn giao mã nguồn: 20/10/2026.
 
-**Đây là mã nguồn mới được xây dựng lại để khắc phục giới hạn của phiên bản React cũ.** Không cần cài thư viện bên ngoài khi build hoặc chạy. Cần Node.js >= 18 để chạy bài kiểm thử/build cục bộ và Netlify Functions.
+## Trạng thái đã kiểm chứng
 
-- `npm run build` đã chạy thành công trên môi trường tạo gói: **39 bài kiểm thử đạt** và thư mục `dist/` có website tĩnh.
-- Có kiểm thử lõi nghiệp vụ, kiểm thử giả lập Netlify Function và kiểm thử tương tác qua các sự kiện giao diện (không dùng API key thật).
-- Đã truy cập bản preview qua HTTP và nhận phản hồi 200 cho `index.html`, `src/app.mjs` và `src/core.mjs`.
-- Chưa kiểm thử được một phiên sử dụng trên trình duyệt đồ họa hoặc lời gọi Gemini thật với khóa Netlify của bạn. **Không bảo đảm Gemini trả lời được khi Google trả 503/429 hoặc hạn mức miễn phí đã hết.**
-- Chưa có đồng bộ dữ liệu xuyên thiết bị. Dữ liệu nghiệp vụ được lưu ở `localStorage` của từng trình duyệt để tránh nguy cơ cấp quyền ghi công khai trái phép cho Supabase.
+- `npm run build`: **thành công**. Có **47/47 bài kiểm thử tự động đạt**, gồm tính toán tài chính, nhập hàng, giá vốn, thanh toán công nợ, tạo/hủy đơn, mô phỏng, lưu quyết định và kiểm thử các sự kiện giao diện giả lập.
+- Website tĩnh được tạo trong `dist/`. Không cần tải thư viện npm bên ngoài để build.
+- Chưa kiểm thử thao tác bằng trình duyệt đồ họa tại môi trường này vì trình duyệt thử nghiệm chặn điều hướng; chưa xác minh lời gọi Gemini thật trên Netlify bằng API key của người dùng.
+- **Giữ nguyên khóa localStorage `smartdecision_v3_main`** để đọc dữ liệu đang có của SmartDecision v3 trên cùng tên miền và trình duyệt. Nên sao lưu JSON trước khi cập nhật.
+- Dữ liệu **chưa đồng bộ nhiều thiết bị**. Không bật quyền ghi Supabase công khai chỉ để đồng bộ.
 
-## 15 chức năng (khác nhau về nhiệm vụ)
+## 13 mục chức năng và luồng nghiệp vụ
 
-1. Tổng quan quản trị — KPI, biểu đồ doanh thu theo 6 tháng, cảnh báo ưu tiên.
-2. Bán hàng & đơn hàng — đơn nhiều SKU, khách hàng, trạng thái, xuất kho một lần và hoàn kho khi đổi khỏi trạng thái hoàn thành.
-3. Sản phẩm — SKU, phân loại, giá bán, giá vốn tham khảo, nhà cung cấp, trạng thái bán; không sửa số lượng tồn ở đây.
-4. Kho hàng — mua/nhận hàng, kiểm kê, giá vốn bình quân và nhật ký nhập/xuất.
-5. Nhà cung cấp & mua hàng — hồ sơ NCC, phiếu nhập, thanh toán nhiều lần, công nợ tự tính và lịch sử thanh toán.
-6. Khách hàng — quản lý hồ sơ và giá trị mua từ đơn hoàn thành.
-7. Chi phí & lợi nhuận — ghi/sửa/xóa chi phí, phân kỳ, báo thiếu giá vốn, tránh cộng trùng tiền mua hàng.
-8. Phân tích kinh doanh — sản phẩm bán chạy, cơ cấu doanh thu, xu hướng doanh thu và chi phí.
-9. Dự báo nhu cầu — run-rate theo SKU dựa trên ít nhất 3 đơn hợp lệ; không đủ dữ liệu thì từ chối suy đoán.
-10. Mô phỏng phương án — What-if và Goal-seeking có công thức/giả định rõ.
-11. Đánh giá nhà cung cấp — ma trận chấm điểm 1–5 và trọng số đa tiêu chí, xếp hạng và lưu thành quyết định.
-12. Cảnh báo rủi ro — tồn kho ngưỡng thấp, công nợ, thiếu dữ liệu giá vốn.
-13. Quản lý quyết định — căn cứ, người phụ trách, hạn, trạng thái, mục tiêu và kết quả thực tế.
-14. Báo cáo quản trị — nguồn KPI và xuất CSV theo kỳ.
-15. Cài đặt doanh nghiệp — đổi tên, điện thoại, email, địa chỉ, ngành, sao lưu/khôi phục và chuyển dữ liệu cũ.
+**Vận hành (7):** Tổng quan; Bán hàng & đơn hàng; Danh mục sản phẩm; Kho & kiểm kê; Nhà cung cấp & nhập hàng; Khách hàng; Tài chính & báo cáo.
 
-Trợ lý AI Gemini là chức năng hỗ trợ ở tất cả các trang. Có proxy Netlify giữ khóa API phía server, giới hạn số lần gọi tương đối theo instance, retry một lần 503 và thử model dự phòng khi được cấp quyền. Nếu lỗi, chatbot ghi **“PHÂN TÍCH DSS CỤC BỘ (KHÔNG PHẢI GEMINI AI)”**. Micro Web Speech API chỉ hoạt động trên trình duyệt hỗ trợ và HTTPS. Cửa sổ có thể kéo thả bằng thanh tiêu đề và nhớ vị trí.
+**DSS (5):** Phân tích kinh doanh; Dự báo nhu cầu; Mô phỏng quyết định (What-if/Goal-seeking); So sánh nhà cung cấp đa tiêu chí; Theo dõi quyết định. **Hệ thống (1):** Cài đặt doanh nghiệp.
 
-## Cách cập nhật GitHub một lần (dành cho người mới)
+Báo cáo quản trị trùng lặp được gộp vào **Tài chính & báo cáo** và có nút Xuất CSV. Cảnh báo được dẫn từ Tổng quan vào danh sách xử lý theo nghiệp vụ, không còn mục menu riêng. Trang Kho không có chức năng tạo phiếu nhập thứ hai: nút nhập hàng dẫn đến **Nhà cung cấp & nhập hàng**, nơi quản lý chứng từ và công nợ.
 
-**Trước khi làm:** Hãy mở website cũ trên trình duyệt bạn vẫn sử dụng; trong trang Cài đặt cũ, xuất JSON sao lưu nếu có nút đó. Sau khi thay website, tên miền giữ nguyên, dữ liệu lưu trên cùng trình duyệt vẫn còn nếu không xóa dữ liệu trang web.
+### Chu trình thao tác nên kiểm tra
 
-1. Giải nén file ZIP, mở thư mục `SmartDecision-Final`.
-2. Mở GitHub Desktop → chọn repository SmartDecision → menu **Repository → Show in Explorer**.
-3. Sao chép bản gốc vào một thư mục dự phòng trên máy (hoặc ghi nhớ commit hiện tại để có thể khôi phục).
-4. Trong thư mục repository, **giữ nguyên thư mục `.git`** (thư mục ẩn chứa lịch sử Git). Xóa **các file/thư mục mã nguồn cũ khác**, rồi chép **toàn bộ nội dung bên trong** `SmartDecision-Final` vào **ngay thư mục gốc repository**. Không chép lồng nguyên thư mục `SmartDecision-Final` thêm một cấp.
-5. Kiểm tra thư mục gốc GitHub có `index.html`, `netlify.toml`, `package.json`, `src/`, `netlify/`, `tests/`, `build.mjs`. Không đưa file `.env`, mật khẩu hoặc API key vào GitHub.
-6. GitHub Desktop → Commit changes → Push origin. Netlify tự deploy một lần. `netlify.toml` quy định lệnh kiểm thử/build và thư mục publish `dist/`.
-7. Trên Netlify, nếu chưa có, đặt `GEMINI_API_KEY` là biến bí mật (không nhập vào giao diện hay mã nguồn). Nếu có `GEMINI_MODEL`, ưu tiên model bạn đã được cấp quyền; Gemini vẫn có thể từ chối vì hạn mức/quá tải.
-8. Mở lại website bằng **trình duyệt đang chứa dữ liệu cũ**, vào **Cài đặt doanh nghiệp → Chuyển dữ liệu từ phiên bản cũ**; chọn xác nhận. Nếu đã có tệp sao lưu kiểu `smartdecision-local-v1`, dùng **Nhập sao lưu v3 / bản cũ** để khôi phục. **Sao lưu v3 trước khi thay thế** dữ liệu nếu đã nhập mới.
+1. **Sản phẩm:** Thêm sản phẩm với SKU, danh mục chọn từ dữ liệu có sẵn hoặc chọn **Thêm danh mục mới**. Không nhập giá vốn thủ công ở đây; sản phẩm mới có tồn kho 0 và giá vốn 0 cho tới lần nhập đầu tiên.
+2. **Nhà cung cấp & nhập hàng:** Chọn nhà cung cấp, sản phẩm, số lượng, **đơn giá mua**, phí đưa hàng về kho, phí bốc xếp và tiền đã trả. Có bảng tự tính trước giá vốn/đơn vị, giá trị nhập kho và phải trả NCC. Phiếu nhập cập nhật kho, giá vốn bình quân, giá mua gần nhất và công nợ.
+3. **Thanh toán:** Thanh toán phần nợ chưa trả của phiếu. Giá vốn, tồn kho và lợi nhuận **không thay đổi lần nữa** chỉ vì thanh toán.
+4. **Khách hàng & đơn hàng:** Tạo đơn bán, chọn khách và các SKU. Khi hoàn thành, ghi doanh thu, giá vốn đã chụp lúc bán và trừ tồn một lần; hủy hoàn hàng và loại đơn khỏi doanh thu.
+5. **Tài chính & báo cáo:** Hiển thị **hai nhóm khác nhau**: (a) doanh thu - giá vốn đã bán - chi phí vận hành - lợi nhuận; (b) tiền nhập hàng, phí nhập kho, tiền đã trả và công nợ còn lại. **Tiền nhập hàng chưa bán không bị trừ trực tiếp vào lợi nhuận.** Xuất CSV ngay tại đây.
+6. **Phân tích & dự báo:** Thống kê bán hàng, xu hướng, ngoại suy tốc độ bán nếu đủ dữ liệu. Đề xuất dự báo có nút lưu thành hồ sơ quyết định với công thức và số liệu đã dùng.
+7. **Mô phỏng & xếp hạng:** Điều chỉnh giả định, lưu kết quả What-if thành hồ sơ quyết định; so sánh nhà cung cấp theo trọng số, chỉ xếp hạng đơn vị đã được người quản lý chấm điểm. Từ kết quả so sánh có đường tắt về việc nhập hàng thật.
+8. **Theo dõi quyết định:** Ghi lý do, mục tiêu, người phụ trách, kết quả thực tế và tình trạng để đánh giá sau khi thực hiện; bản thân thao tác lưu quyết định không tự tạo đơn hay thay đổi kho.
+9. **Cài đặt & chatbot:** Đổi tên doanh nghiệp, sao lưu/khôi phục JSON. Cửa sổ chatbot kéo bằng thanh tiêu đề (có dòng chỉ dẫn); nút mở chatbot cũng có thể kéo, và có nút đặt lại vị trí. Bỏ phần thông báo kỹ thuật Gemini dài trong Cài đặt.
 
-Nếu Netlify không tự deploy thì vào Netlify → Deploys xem trạng thái; đừng đổi biến môi trường lung tung hoặc tạo API key mới chỉ vì lỗi 503.
+### Phân biệt giá nhập và giá vốn
 
-## Kiểm thử thủ công sau deploy (không cần nhiều lượt deploy)
+Ví dụ: nhập 10 chiếc, giá mua 100.000đ/chiếc, phí vận chuyển về kho 100.000đ, bốc xếp 50.000đ. Giá trị nhập kho = **1.150.000đ**, giá vốn lô mới = **115.000đ/chiếc**. Nếu còn hàng cũ, dùng bình quân gia quyền theo số lượng còn tồn và giá vốn cũ.
 
-- **Kho ↔ công nợ:** Chọn nhà cung cấp, chọn đúng sản phẩm, nhập 5 sản phẩm giá nhập 100.000, trả trước 200.000. Tồn phải tăng 5 và công nợ tăng 300.000. Thanh toán thêm 100.000 → công nợ giảm 100.000, lợi nhuận không đổi.
-- **Đơn hàng ↔ kho:** Tạo đơn gồm 2 SKU, trạng thái Hoàn thành → kho mỗi SKU giảm theo số lượng; chuyển sang Đã hủy → hoàn kho; đổi trạng thái không lặp phép tính.
-- **Tài chính:** Thêm chi phí 100.000 → lợi nhuận sau chi phí giảm 100.000 khi có đủ giá vốn; sửa / xóa khoản chi → cập nhật lại.
-- **DSS:** Vào Mô phỏng → sửa các giả định giá/nhu cầu → kết quả thay đổi; Goal-seeking → tính doanh thu cần đạt. Đổi trọng số trong Đánh giá NCC → điểm/xếp hạng cập nhật.
-- **Cài đặt:** Đổi tên doanh nghiệp → tên hiển thị trên thanh bên thay đổi; tải lại trang để xác nhận vẫn lưu.
-- **Chatbot:** Hỏi “Phân tích doanh thu”. Nếu Gemini trả lỗi 503, vẫn thấy phân tích DSS nội bộ được ghi rõ không phải AI.
-- **Sao lưu:** Xuất JSON v3 để tránh mất dữ liệu khi xóa trình duyệt hoặc đổi máy.
+- **Bên vận chuyển ngoài thu phí:** Hệ thống **giả định đã trả khoản phí này ngay khi nhập**, cộng phí vào giá trị tồn kho nhưng **không tăng nợ đối với nhà cung cấp hàng hóa**.
+- **Nhà cung cấp thu cả phí:** Chọn tùy chọn tương ứng, chi phí này **cộng vào số tiền phải trả nhà cung cấp**.
+- Khoản phí nhập kho đã phân bổ vào giá vốn **không ghi thêm lần thứ hai vào “Chi phí vận hành”**.
+- Phí giao hàng tới khách là **chi phí bán hàng**, không cộng ngược vào giá vốn nhập kho.
+- Hệ thống hiện chưa có sổ công nợ **riêng cho hãng vận chuyển** hoặc sổ quỹ tiền/bank đầy đủ; nếu chi phí ngoài chưa thanh toán, đừng xác nhận là “đã trả” trong nghiệp vụ này.
 
-## Vấn đề giới hạn chưa giải quyết hoàn toàn
+## Cách cập nhật — Copy → Replace → Commit → Push
 
-1. **Đồng bộ nhiều thiết bị / nhiều tài khoản:** Phiên bản này cố ý **không tự ghi Supabase bằng anon key**. Muốn đồng bộ an toàn cần thiết kế bảng giao dịch mới, xác thực và RLS, không thể giải quyết bằng việc bật anonymous public writes. Người xem trên máy khác sẽ thấy dữ liệu mẫu ban đầu hoặc bản JSON họ nhập, không tự thấy dữ liệu người quản lý.
-2. **Dữ liệu cũ thiếu dòng SKU hoặc giá vốn:** Không tự đoán giá vốn/hàng tồn. Lợi nhuận tổng hiện “chưa đủ dữ liệu” khi có đơn cũ thiếu chứng từ. Mô hình What-if/Goal-seeking không tự tạo số khi không đủ dữ liệu.
-3. **Gemini API:** Có hỗ trợ xử lý 503/429 nhưng không thể bảo đảm Google cấp model/hạn mức miễn phí hoặc dịch vụ không quá tải. Retry có giới hạn; fallback DSS nội bộ không phải câu trả lời của Gemini.
-4. **Nghiệp vụ kế toán nâng cao:** Chưa bao gồm thuế, chiết khấu nhiều mức, hoàn tiền, chuyển kho đa chi nhánh, tính FIFO, đối soát ngân hàng hoặc quản lý vai trò nhân sự; không tự gọi là ERP hoặc phần mềm kế toán đạt chuẩn.
-5. **Kiểm thử trình duyệt thật:** Đã kiểm tra logic, UI mô phỏng qua DOM sự kiện, HTTP và build; chưa xác nhận trực quan trên tất cả các trình duyệt hoặc Netlify production.
+1. Vào SmartDecision v3 đang chạy bằng đúng trình duyệt đã nhập dữ liệu → **Cài đặt → Xuất bản sao lưu JSON**. Giữ file JSON để dự phòng.
+2. Giải nén ZIP bản v4. Mở thư mục **`SmartDecision-v4`** bên trong.
+3. GitHub Desktop → chọn repository hiện tại → **Repository → Show in Explorer**.
+4. Chọn **toàn bộ nội dung bên trong** `SmartDecision-v4`, `Ctrl+C`; quay lại cửa sổ Explorer của repository, `Ctrl+V`, chọn **Replace the files in the destination**. Không xóa sạch thư mục dự án; không cần quan tâm `.git`.
+5. Quay lại GitHub Desktop → ghi commit `SmartDecision v4 - sửa liên kết nghiệp vụ và DSS` → **Commit to main → Push origin**. Netlify sẽ tự build từ `netlify.toml`.
+6. Mở lại website trên trình duyệt cũ, thử tạo **một sản phẩm và một phiếu nhập** rồi kiểm tra thay đổi ở Tài chính; thử Gemini bằng câu hỏi doanh thu. Không cần gửi/chia sẻ API key.
 
-## File cần thiết
+**Không thay đổi hoặc đăng công khai** `GEMINI_API_KEY`. Nếu Gemini gặp lỗi 429/503 do Google, chatbot có phân tích DSS cục bộ ghi rõ nguồn; không thể đảm bảo bên thứ ba hoạt động liên tục.
 
-- `index.html`, `styles.css`, `src/app.mjs`, `src/core.mjs`: mã chạy website.
-- `netlify/functions/decision-ai.mjs`: Gemini API proxy ở server.
-- `netlify.toml`: build / deploy Netlify.
-- `build.mjs`, `package.json`: đóng gói đầu ra `dist/` không cần tải thư viện npm.
-- `tests/*.test.mjs`: bộ 39 phép kiểm thử.
-- `dist/`: file tĩnh đã build, Netlify sẽ tạo lại khi deploy.
+## Kiểm thử chi tiết bằng ví dụ
 
-Có thể kiểm thử trên máy có Node.js bằng `npm run build`, sau đó `npm run dev` và mở `http://localhost:4173`. Không cần `npm install` vì không có dependencies.
+- Tạo 1 SKU mới và 1 danh mục mới; lần sau thêm sản phẩm, danh mục vừa tạo phải xuất hiện trong danh sách.
+- Nhập 10 chiếc giá mua 100.000đ, phí nhập 150.000đ, trả NCC 400.000đ, phí do bên ngoài thu: kho +10; giá vốn 115.000đ/chiếc (nếu tồn trước đó 0); công nợ NCC +600.000đ; phần chi phí nhập được thể hiện riêng ở Tài chính.
+- Trả tiếp NCC 200.000đ: công nợ phiếu còn 400.000đ; tồn kho và lợi nhuận không đổi.
+- Tạo đơn bán 2 chiếc và hoàn thành: kho -2, doanh thu tăng theo giá bán, giá vốn hàng bán 230.000đ (nếu đúng giá vốn 115.000đ/chiếc). Hủy đơn: hoàn 2 và loại doanh thu/giá vốn của đơn khỏi kỳ.
+- Thêm chi phí quảng cáo 50.000đ: giảm lợi nhuận sau chi phí 50.000đ khi đủ dữ liệu; không làm tăng công nợ NCC.
+- Đổi trọng số xếp hạng NCC: thứ hạng đổi theo điểm do bạn nhập. Lưu kết quả và mở Theo dõi quyết định. Mô phỏng What-if cũng có nút lưu quyết định.
+- Thử kéo cửa sổ trợ lý bằng thanh đầu và kéo nút nổi khi cửa sổ đóng; nút ⤢ đặt lại vị trí. Cuộn trên ô số không tự làm tăng/giảm giá trị.
+
+## Giới hạn phải nói rõ
+
+1. Vẫn là ứng dụng đơn người dùng, lưu dữ liệu vào `localStorage`. Muốn đồng bộ giữa các máy cần Supabase Auth, bảng giao dịch và chính sách RLS phù hợp, không thể mở quyền ghi công khai.
+2. Không thể tự phục dựng chính xác giá vốn/dòng SKU của đơn lịch sử thiếu chi tiết; giao diện giữ cảnh báo thay vì bịa lợi nhuận.
+3. Không phải phần mềm kế toán chuẩn đầy đủ: chưa bao gồm VAT, FIFO, kiểm soát nhập hàng nhiều dòng trên một chứng từ, công nợ đơn vị vận chuyển chưa thanh toán hoặc dòng tiền ngân hàng.
+4. 47 bài kiểm thử và build thành công **không thay thế kiểm thử thực tế trên Netlify và bằng trình duyệt người dùng**. Gemini API thật và thao tác kéo thả trên thiết bị của bạn cần xác nhận sau deploy.

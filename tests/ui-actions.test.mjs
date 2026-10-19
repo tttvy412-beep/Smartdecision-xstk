@@ -27,3 +27,28 @@ test('Ghi chi phí tạo thay đổi dữ liệu và cập nhật tên doanh ngh
  send('settings-form',{name:'Cửa hàng Sao Biển',sector:'Phụ kiện',phone:'',email:'',address:'TP HCM'});
  s=state();assert.equal(s.company.name,'Cửa hàng Sao Biển');assert.match(els.app.innerHTML,/Cửa hàng Sao Biển/);
 });
+test('v4: tạo sản phẩm qua giao diện dùng danh mục mới mà không nhập giá vốn',()=>{
+ click('new-product');assert.match(els['modal-slot'].innerHTML,/Thêm danh mục mới/);
+ assert.doesNotMatch(els['modal-slot'].innerHTML,/Giá vốn khởi tạo/);
+ send('product-form',{sku:'INK-NEW',name:'Mực in',categoryChoice:'__new__',newCategory:'Văn phòng phẩm',price:'25000',min:'3',supplierId:'NCC01'});
+ const s=state(),prod=s.products.find(x=>x.sku==='INK-NEW');
+ assert.ok(prod);assert.equal(prod.cost,0);assert.equal(prod.stock,0);assert.equal(prod.category,'Văn phòng phẩm');
+ click('new-product');assert.match(els['modal-slot'].innerHTML,/Văn phòng phẩm/);
+});
+test('v4: mua hàng và dữ liệu tài chính có phí vận chuyển từ cùng phiếu',()=>{
+ const id=state().products.find(p=>p.sku==='INK-NEW').id;
+ const goEl={dataset:{action:'buy-product',id},classList:{contains:()=>false}};
+ hooks.click({target:{closest:sel=>sel==='[data-action]'?goEl:null}});
+ assert.match(els.app.innerHTML,/Nhà cung cấp & nhập hàng/);
+ assert.match(els['modal-slot'].innerHTML,/Phí vận chuyển hàng về kho/);
+ send('receive-form',{supplierId:'NCC01',productId:id,quantity:'10',unitCost:'10000',freight:'20000',handling:'0',feesBilledBySupplier:'no',paid:'20000'});
+ const s=state(),prod=s.products.find(p=>p.id===id);
+ assert.equal(prod.stock,10);assert.equal(prod.cost,12000);assert.equal(s.purchases[0].total,100000);assert.equal(s.purchases[0].landedTotal,120000);
+});
+test('v4: mô phỏng có thể tạo hồ sơ quyết định',()=>{
+ const before=state().decisions.length;
+ click('scenario-to-decision');
+ const s=state();assert.equal(s.decisions.length,before+1);
+ assert.match(s.decisions[0].reason,/giả định giá bán/);
+ assert.match(els.app.innerHTML,/Hồ sơ quyết định/);
+});
