@@ -1,0 +1,4 @@
+import {createServer} from 'node:http';import {readFile,stat} from 'node:fs/promises';import {extname,resolve,sep} from 'node:path';
+const root=resolve(import.meta.dirname,'dist');
+const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8'};
+createServer(async(req,res)=>{try{const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);const target=resolve(root,'.'+pathname);if(target!==root&&!target.startsWith(root+sep))throw Error('Invalid path');const file=(await stat(target)).isDirectory()?resolve(target,'index.html'):target;res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream'});res.end(await readFile(file));}catch{res.writeHead(404);res.end('Not found');}}).listen(process.env.PORT||4173,()=>console.log('SmartDecision preview: http://localhost:'+String(process.env.PORT||4173)));

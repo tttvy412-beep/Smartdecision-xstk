@@ -32,6 +32,8 @@ export default async (request) => {
   try{
     let model=preferred;
     let {res,data}=await generate(model);
+    // Temporary overload: one bounded retry, without retrying quota failures.
+    if(res.status===503){await new Promise(resolve=>setTimeout(resolve,900));({res,data}=await generate(model));}
     if(res.status===404 || (res.status===400 && /model|not found|not supported/i.test(JSON.stringify(data)))){
       const listRes=await fetch(`${base}/models?pageSize=100`,{signal:controller.signal,headers:{'x-goog-api-key':key}});
       if(listRes.ok){
@@ -41,7 +43,12 @@ export default async (request) => {
         if(next){model=next;({res,data}=await generate(model));}
       }
     }
+    if(res.status===503){
+      const listRes=await fetch(`${base}/models?pageSize=100`,{signal:controller.signal,headers:{'x-goog-api-key':key}});
+      if(listRes.ok){const listed=await listRes.json();const candidates=(listed.models||[]).filter(m=>m.supportedGenerationMethods?.includes('generateContent')).map(m=>m.name.replace(/^models\//,''));const fallback=candidates.find(x=>x!==model&&/flash/i.test(x));if(fallback){model=fallback;({res,data}=await generate(model));}}
+    }
     if(!res.ok){
+      if(res.status===503)return json(503,{error:'Gemini đang quá tải. Phân tích bằng quy tắc DSS trong hệ thống vẫn có thể sử dụng; hãy thử AI sau.'});
       const detail=String(data?.error?.message||'').slice(0,350);
       if(res.status===429)return json(429,{error:'Gemini đã hết hạn mức miễn phí hoặc quá nhiều yêu cầu (429). Vui lòng thử lại sau; không cần tạo API key mới.'});
       if(res.status===400||res.status===404)return json(502,{error:`Mô hình Gemini ${model} không khả dụng (${res.status}). ${detail} Kiểm tra GEMINI_MODEL và mô hình được cấp cho dự án.`});
