@@ -1,9 +1,9 @@
 {
-  "name": "smartdecision-final-static",
-  "version": "5.0.0",
+  "name": "retailmind-mis-dss",
+  "version": "6.0.0",
   "private": true,
   "type": "module",
-  "description": "SmartDecision MIS/DSS without runtime third-party dependencies",
+  "description": "RetailMind MIS/DSS without runtime third-party dependencies",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "build": "npm test && node build.mjs",

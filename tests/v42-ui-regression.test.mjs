@@ -40,6 +40,6 @@ test('Thẻ C dư thừa biến mất, micro là icon SVG đúng',()=>{
 });
 test('Tài chính hiển thị khoản chi tiền hàng không tính hai lần trong lợi nhuận',()=>{
  clickPage('finance');
- assert.match(elements.app.innerHTML,/TỔNG TIỀN CHI ĐÃ GHI NHẬN/);
+ assert.match(elements.app.innerHTML,/TỔNG TIỀN ĐÃ CHI/);
  assert.match(elements.app.innerHTML,/không làm giảm ngay lợi nhuận/);
 });

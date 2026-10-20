@@ -1,0 +1,37 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+const callbacks={}, elements={'app':{innerHTML:''},'modal-slot':{innerHTML:''},'toast':{className:'',textContent:''}};
+const store=new Map();
+globalThis.localStorage={getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)};
+globalThis.document={title:'',getElementById:id=>elements[id]||null,querySelector(){return null;},addEventListener:(e,fn)=>{callbacks[e]=fn;}};
+globalThis.window={scrollTo(){},scrollY:0};globalThis.requestAnimationFrame=f=>f();
+globalThis.FormData=class {constructor(f){this.pairs=Object.entries(f?.fields||{});}entries(){return this.pairs[Symbol.iterator]();}get(k){return this.pairs.find(([x])=>x===k)?.[1]||null;}getAll(k){return this.pairs.filter(([x])=>x===k).map(([,v])=>v);}};
+const click=(action,id='')=>{const item={dataset:{action,id},classList:{contains:()=>false}};callbacks.click({target:{closest(sel){return sel==='[data-action]'?item:null;}}});};
+const go=id=>callbacks.click({target:{closest(sel){return sel==='[data-go]'?{dataset:{go:id}}:null;}}});
+const submit=(id,fields)=>callbacks.submit({preventDefault(){},target:{id,fields}});
+const data=()=>JSON.parse(store.get('smartdecision_v3_main'));
+await import('../src/app.mjs');
+test('v5.1: thêm nhanh đơn vị vận chuyển/bốc xếp và lập phiếu mua trong một lần lưu',()=>{
+ click('receive');let html=elements['modal-slot'].innerHTML;
+ assert.match(html,/value="__new__"/);
+ assert.match(html,/name="newFreightPartnerName"/);
+ assert.match(html,/name="newHandlingPartnerName"/);
+ submit('receive-form',{supplierId:'NCC01',productId:'SP01',quantity:'3',unitCost:'100000',deliveryStage:'received',freightRecipient:'carrier',freightPartnerId:'__new__',newFreightPartnerName:'Vận tải Đường Xanh',freight:'30000',freightPaid:'0',handlingRecipient:'carrier',handlingPartnerId:'__new__',newHandlingPartnerName:'Bốc xếp An Tâm',handling:'15000',handlingPaid:'0',paid:'0'});
+ const s=data();
+ const transport=s.suppliers.find(x=>x.name==='Vận tải Đường Xanh');
+ const handling=s.suppliers.find(x=>x.name==='Bốc xếp An Tâm');
+ assert.equal(transport?.type,'Vận chuyển');assert.equal(handling?.type,'Dịch vụ');
+ assert.equal(s.purchases[0].charges.find(x=>x.kind==='Vận chuyển')?.partnerId,transport.id);
+ assert.equal(s.purchases[0].charges.find(x=>x.kind==='Bốc xếp')?.partnerId,handling.id);
+});
+test('v5.1: giao diện liệt kê bổ sung chứng từ cho khoản khách đã thu',()=>{
+ const order=data().orders.find(o=>o.status==='Hoàn thành' && o.total>0);
+ submit('pay-order-form',{orderId:order.id,amount:'15000',method:'Chuyển khoản',reference:'VC1',date:'2026-10-20'});
+ go('orders');
+ assert.match(elements.app.innerHTML,/Bổ sung ảnh\/PDF/);
+ const pay=data().orders.find(o=>o.id===order.id).payments.at(-1);
+ click('attach-evidence','orderpay:'+pay.id);
+ assert.match(elements['modal-slot'].innerHTML,/name="evidenceRef"/);
+ assert.match(elements['modal-slot'].innerHTML,/name="evidence"/);
+ assert.equal(data().orders.find(o=>o.id===order.id).payments.length,1);
+});

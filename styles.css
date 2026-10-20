@@ -36,3 +36,17 @@
 .modal-form .caption{margin:6px 0;color:#6b7895;line-height:1.6}
 .row-control select,.row-control input{max-width:100%}
 @media(max-width:650px){.row-control{flex-wrap:wrap}.row-control>label{flex:1 1 140px}.row-actions{min-width:145px}}
+
+/* v5.1: isolate scrolling between modal, sidebar, tables, and page */
+.sidebar,.modal,.table-scroll,.chat-body{overscroll-behavior:contain;}
+.modal-backdrop{overscroll-behavior:contain;}
+.quick-partner[hidden]{display:none!important;}
+.quick-partner{border-left:3px solid var(--primary);padding-left:12px;}
+
+/* RetailMind v6: readable monetary inputs and purposeful pricing assistance */
+input[data-money]{font-variant-numeric:tabular-nums;letter-spacing:.25px;font-weight:650;text-align:left;}
+.pricing-info{grid-column:1/-1;padding:15px 17px;border-radius:12px;background:#f0f5ff;border:1px solid #d7e1f5;display:flex;flex-direction:column;gap:8px;color:#293b5b;font-size:12px;}
+.pricing-info strong{font-size:19px;color:#4255b8}.pricing-info small{color:#6c7891;line-height:1.5}
+#pricing-preview{font-weight:600;color:#267a64}
+.sidebar,.modal,.table-scroll,.chat-body{overscroll-behavior:contain;}
+.brand strong{font-size:17px;letter-spacing:-.35px}.brand small{font-size:8.5px;letter-spacing:.4px}
