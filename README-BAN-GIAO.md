@@ -1,3 +1,47 @@
+# SmartDecision v4.2 — cập nhật giao diện, chứng từ và AI (20/10/2026)
+
+**Mã nguồn dựa trên phiên bản v4.1 đang chạy.** Không xóa localStorage; giữ `smartdecision_v3_main` để bảo toàn dữ liệu cũ trên cùng địa chỉ website và trình duyệt.
+
+## Các vấn đề người dùng đã báo và cách xử lý
+
+- Trả lời Gemini lộ `**`, `###`, `\frac`, `\text`, công thức Markdown/LaTeX: server được yêu cầu trả lời tiếng Việt với công thức dạng văn bản; client có trình bày tiêu đề, danh sách, chữ đậm và làm sạch cú pháp toán cơ bản khi Gemini vẫn gửi định dạng. **Chưa thử bằng API key thật.**
+- Nốt nhạc tại chatbot: đổi sang icon micro SVG; giữ nhận dạng giọng nói Web Speech API khi trình duyệt hỗ trợ.
+- Mục **Khác** trong nhóm chi phí: thêm tùy chọn **＋ Thêm nhóm chi phí mới**; tên nhóm mới sẽ xuất hiện trong các lần nhập sau. Danh mục cũ tên Khác (nếu có) vẫn được giữ để không tự sửa dữ liệu lịch sử.
+- Ký tự **C** ở góc trên: vốn là chữ đầu tên doanh nghiệp, không có chức năng; đã bỏ. Tên doanh nghiệp vẫn ở menu và Cài đặt.
+- Danh mục sản phẩm: bỏ nút **Nhập thêm** khỏi mỗi dòng; chỉ còn **Sửa**. Nhập hàng luôn đi qua Nhà cung cấp & nhập hàng.
+- Nhà cung cấp và Tạo phiếu nhập: hai nút tạo chính cùng màu tím.
+- Mua hàng và thanh toán công nợ: có ô chọn ảnh JPG, PNG, WebP hoặc PDF tối đa 6 MB; xem chứng từ theo từng phiếu nhập hoặc thanh toán. Chứng từ lưu trong **IndexedDB của trình duyệt**, không chuyển cho Gemini hay Netlify. Tệp sao lưu JSON đầy đủ chứa cả ảnh/PDF đã lưu. Tải ảnh lên **không chứng minh hóa đơn hợp lệ**, cần người quản lý xác minh.
+- Tài chính: bổ sung **TỔNG TIỀN CHI ĐÃ GHI NHẬN**, bằng số đã trả nhà cung cấp + phí nhập kho trả bên ngoài + chi phí vận hành (giả định đã chi). Khi nhập hàng và thanh toán tiền, dòng tiền đã chi cập nhật tự động. **Không tự ghi toàn bộ tiền nhập kho là chi phí lợi nhuận:** hàng mua còn trong kho là hàng tồn; vốn của hàng bán chỉ ghi nhận khi bán.
+- AI: thêm **AI phân tích tài chính** để phân tích trực tiếp từ số liệu hiện có và **Lưu phân tích thành đề xuất** sau khi người dùng xác nhận. AI không được tự ý ghi nhận thanh toán, nhập kho hoặc duyệt quyết định.
+
+## Hướng dẫn cập nhật (chỉ copy–replace)
+
+1. Trên website v4.1, chọn Cài đặt doanh nghiệp → **Xuất bản sao lưu JSON** để dự phòng.
+2. Giải nén ZIP, mở thư mục `SmartDecision-v4` bên trong, chọn toàn bộ nội dung → Ctrl+C.
+3. GitHub Desktop → Repository → Show in Explorer → Ctrl+V → Replace.
+4. GitHub Desktop → Commit với tên `SmartDecision v4.2 - Cap nhat Gemini chung tu va tai chinh` → Push origin. Netlify tự triển khai; không cần đụng đến `.git` hay API key.
+5. Kiểm tra: chatbot có mic, hỏi phân tích doanh thu; tạo nhóm chi phí; tạo phiếu nhập kèm chứng từ; thanh toán có chứng từ; xem tổng chi tiền ở Tài chính; bấm xem lại chứng từ.
+
+## Kiểm tra và giới hạn
+
+- **56/56 bài kiểm thử tự động đạt và tạo được `dist` bằng lệnh `npm run build`**. Bao gồm kiểm thử mới cho menu, nhóm chi phí, bằng chứng giao dịch, biểu tượng micro và bảng tài chính.
+- **Chưa kiểm thử trình duyệt thật trong môi trường này** vì hệ thống chặn điều hướng headless Chromium; các luồng IndexedDB, đọc tệp bằng trình duyệt và micro cần bạn kiểm tra sau khi cập nhật.
+- Chưa kiểm thử Gemini thật từ Netlify, do API key nằm trong môi trường bí mật của bạn; lỗi 429/503 từ phía Gemini vẫn có thể xảy ra.
+- Dữ liệu và chứng từ chỉ lưu theo trình duyệt, không tự đồng bộ đa thiết bị. File JSON sao lưu có thể chứa thông tin khách hàng/chứng từ; giữ riêng tư.
+- Không cung cấp tự động xác minh hóa đơn, không tự ghi bút toán thuế, và không tự thực thi đề xuất AI.
+
+---
+
+# Bản vá điều hướng v4.1 (20/10/2026)
+
+**Sửa lỗi menu nhảy về đầu khi chọn mục ở phía dưới (ví dụ Theo dõi quyết định).** Giao diện bây giờ ghi nhớ vị trí cuộn thực tế của thanh menu trước khi cập nhật nội dung và phục hồi ngay sau khi cập nhật. Bỏ cơ chế khôi phục vị trí cuộn cũ theo trang vốn có thể làm nội dung chính nhảy bất thường. Bấm lại mục hiện tại không vẽ lại toàn bộ trang.
+
+**Phạm vi:** Chỉ thay đổi cách chuyển mục và giữ vị trí cuộn, không thay đổi mô hình dữ liệu hay cách tính công nợ, kho và tài chính. Có thêm 3 bài kiểm thử điều hướng. `npm run build` đã đạt 50/50 bài kiểm thử và tạo `dist` thành công. Chưa xác minh được bằng trình duyệt tương tác trong môi trường đóng gói vì trình duyệt bị hạn chế truy cập trang local.
+
+**Cập nhật:** Giải nén → copy **nội dung bên trong thư mục `SmartDecision-v4`** vào thư mục repository đang dùng → Replace → Commit → Push. Không xóa thư mục `.git`. Dữ liệu localStorage không bị xóa bởi bản vá này.
+
+---
+
 # SmartDecision v4.0 — bản tối giản, dữ liệu liên thông, DSS có quy trình
 
 Ngày bàn giao mã nguồn: 20/10/2026.

@@ -17,3 +17,11 @@
 @media(max-width:700px){.purchase-preview,.procurement-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.chat-head{gap:7px}.chat-head small{font-size:10px}}
 @media(max-width:390px){.purchase-preview{grid-template-columns:1fr}}
 .unrated-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.unrated-row:last-child{border:0}.unrated-row strong{font-size:13px}
+
+/* v4.2: assistant, document evidence and finance clarity */
+.bubble.assistant{white-space:normal;font-size:12px;line-height:1.7}.bubble.user{white-space:pre-wrap}
+.ai-heading{font-size:12px;font-weight:800;color:#263761;margin:10px 0 4px}.ai-line{margin:3px 0}.ai-item{position:relative;padding-left:13px;margin:5px 0}.ai-item:before{content:"•";position:absolute;left:0;color:#5856cf;font-weight:900}.ai-spacer{height:7px}.bubble code{font-size:11px;white-space:normal;overflow-wrap:anywhere;background:#f1f1fc;padding:0 3px;border-radius:3px}
+.chat-actionbar{padding:7px 10px 0;background:#fff;border-top:1px solid #edf0f7}.chat-save-decision{border:1px solid #d8dcff;border-radius:8px;background:#f2f2ff;color:#524fc1;font-size:10.5px;padding:8px 12px;font-weight:750}.chat-save-decision:hover{background:#e9e9ff}
+.chat-form .chat-mic{display:grid;place-items:center}.expense-category-control{display:flex;flex-direction:column;gap:12px}.expense-category-control label{display:flex;flex-direction:column;gap:7px;font-size:11px;color:#64738e;font-weight:670}.expense-category-control label[hidden]{display:none}.expense-category-control input{width:100%}
+.field-help{font-size:10px;color:#8390a8;font-weight:400}.evidence-content{padding:17px 20px}.evidence-modal{width:min(810px,98vw)}.evidence-frame{width:100%;height:min(65vh,700px);border:1px solid #e4e8f3;border-radius:10px}.evidence-image{display:block;max-width:100%;max-height:65vh;object-fit:contain;margin:auto}.evidence-content p{font-size:11px;color:#8794a8;margin:15px 0}
+.procurement-summary .outflow-total{border:1px solid #c7d3fc;background:linear-gradient(135deg,#eef1ff,#fafbff)}.procurement-summary .outflow-total strong{color:#514bcc}
