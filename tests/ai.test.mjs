@@ -19,3 +19,65 @@ test('AI returns a generated answer from the Netlify server proxy',async()=>{
  try{const r=await handler(new Request(url,{method:'POST',body:JSON.stringify({question:'Phân tích kho'})}));assert.equal(r.status,200);assert.match((await r.json()).answer,/giả lập/)}
  finally{globalThis.fetch=original;if(oldKey===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=oldKey}
 });
+
+test('Gemini stops at MAX_TOKENS: server requests continuation and combines the complete response',async()=>{
+ const previousFetch=globalThis.fetch,oldKey=process.env.GEMINI_API_KEY;
+ process.env.GEMINI_API_KEY='test-server-only-key';
+ let call=0,firstPayload,followPayload;
+ globalThis.fetch=async(url,opts)=>{
+   call++;const p=JSON.parse(opts.body);if(call===1)firstPayload=p;else followPayload=p;
+   const data=call===1?
+    {candidates:[{content:{parts:[{text:'Phương án 1: Đặt mua 10 áo theo mức tối thiểu.\n-'}]},finishReason:'MAX_TOKENS'}]}:
+    {candidates:[{content:{parts:[{text:'Kiểm tra nhà cung cấp và chi phí vận chuyển.\nKết luận: Chọn phương án phù hợp sau khi xác minh nhu cầu.'}]},finishReason:'STOP'}]};
+   return new Response(JSON.stringify(data),{status:200,headers:{'content-type':'application/json'}});
+ };
+ try{
+  const response=await handler(new Request(url,{method:'POST',body:JSON.stringify({question:'Hàng nào cần nhập?'})}));
+  const payload=await response.json();
+  assert.equal(response.status,200);
+  assert.equal(call,2);
+  assert.match(payload.answer,/Kết luận/);
+  assert.match(payload.answer,/Phương án 1/);
+  assert.equal(firstPayload.generationConfig.maxOutputTokens,4096);
+  assert.match(followPayload.contents.at(-1).parts[0].text,/viết tiếp/);
+ }finally{globalThis.fetch=previousFetch;if(oldKey===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=oldKey}
+});
+
+test('Gemini cannot finish even after continuation: rejects incomplete answer instead of showing it',async()=>{
+ const previousFetch=globalThis.fetch,oldKey=process.env.GEMINI_API_KEY;
+ process.env.GEMINI_API_KEY='test-server-only-key';
+ globalThis.fetch=async()=>new Response(JSON.stringify({candidates:[{content:{parts:[{text:'Phương án 1: Nhập...'}]},finishReason:'MAX_TOKENS'}]}),{status:200,headers:{'content-type':'application/json'}});
+ try{
+  const response=await handler(new Request(url,{method:'POST',body:JSON.stringify({question:'Phân tích kho'})}));
+  assert.equal(response.status,502);
+  assert.match((await response.json()).error,/chưa hoàn tất/i);
+ }finally{globalThis.fetch=previousFetch;if(oldKey===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=oldKey}
+});
+
+test('Gemini long valid response is not silently cut at 6500 characters',async()=>{
+ const previousFetch=globalThis.fetch,oldKey=process.env.GEMINI_API_KEY;
+ process.env.GEMINI_API_KEY='test-server-only-key';
+ const text='Số liệu đã xác minh. '.repeat(380);
+ globalThis.fetch=async()=>new Response(JSON.stringify({candidates:[{content:{parts:[{text}]},finishReason:'STOP'}]}),{status:200,headers:{'content-type':'application/json'}});
+ try{
+  const response=await handler(new Request(url,{method:'POST',body:JSON.stringify({question:'Phân tích kho'})}));
+  assert.equal(response.status,200);
+  assert.equal((await response.json()).answer,text.trim());
+ }finally{globalThis.fetch=previousFetch;if(oldKey===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=oldKey}
+});
+
+test('AI response ending in a broken bullet is continued even if finishReason is STOP',async()=>{
+ const previousFetch=globalThis.fetch,oldKey=process.env.GEMINI_API_KEY;
+ process.env.GEMINI_API_KEY='test-server-only-key';
+ let calls=0;
+ globalThis.fetch=async()=>{
+   calls++;
+   const text=calls===1?'Phương án 1: Nhập bù theo định mức\n-':'Kiểm tra số lượng thiếu và ngân sách.\nKết luận: Ưu tiên mặt hàng thiếu nhiều nhất.';
+   return new Response(JSON.stringify({candidates:[{content:{parts:[{text}]},finishReason:'STOP'}]}),{status:200,headers:{'content-type':'application/json'}});
+ };
+ try{
+  const response=await handler(new Request(url,{method:'POST',headers:{'x-nf-client-connection-ip':'mock-final'},body:JSON.stringify({question:'Cần nhập hàng nào?'})}));
+  assert.equal(response.status,200);assert.equal(calls,2);
+  assert.match((await response.json()).answer,/Kết luận/);
+ }finally{globalThis.fetch=previousFetch;if(oldKey===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=oldKey}
+});
