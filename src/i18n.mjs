@@ -62,3 +62,58 @@ export function translateUI(root,lang){if(lang!=='en'||!root||typeof document===
  }
  root.querySelectorAll('input[placeholder]').forEach(node=>{const p=node.getAttribute('placeholder');if(en[p])node.placeholder=en[p];});
 }
+// Additional visible copy for RetailMind's dedicated account experience.
+Object.assign(en,{
+'Địa chỉ email':'Email address','Chào mừng trở lại!':'Welcome back!',
+'Khởi tạo tài khoản':'Create your account','Lấy lại mật khẩu':'Reset your password',
+'NỀN TẢNG QUẢN TRỊ DOANH NGHIỆP':'ENTERPRISE MANAGEMENT PLATFORM',
+'Nhập mật khẩu':'Enter your password','Xác nhận mật khẩu':'Confirm password',
+'Nhập lại mật khẩu':'Enter your password again','Cập nhật mật khẩu':'Update password',
+'QUẢN TRỊ · PHÂN TÍCH · RA QUYẾT ĐỊNH':'OPERATIONS · ANALYTICS · DECISIONS',
+'Không gian riêng cho mỗi doanh nghiệp':'A secure space for each business',
+'Quản trị bán lẻ':'Retail operations','Phân tích dữ liệu':'Data analytics',
+'Hỗ trợ quyết định':'Decision intelligence','PHÂN TÍCH DOANH THU':'REVENUE ANALYTICS',
+'Hỗ trợ thông minh':'Intelligent assistance','Dự báo · Kịch bản · DSS':'Forecasts · Scenarios · DSS',
+'Biến dữ liệu':'Turn data','thành':'into','lợi thế':'competitive','cạnh tranh.':'advantage.',
+'Đăng nhập để tiếp tục điều hành và ra quyết định từ dữ liệu của bạn.':'Sign in to manage your business and make data-driven decisions.',
+'Tạo tài khoản để bắt đầu quản lý không gian doanh nghiệp riêng.':'Create an account to manage your own business workspace.',
+'Nhập địa chỉ email để nhận liên kết đặt lại mật khẩu.':'Enter your email to receive a reset link.',
+'Chưa có tài khoản?':'New here?','Đăng ký ngay':'Create an account',
+'Dữ liệu hôm nay. Quyết định tốt hơn ngày mai.':'Today’s data. Better decisions tomorrow.',
+'Không gian riêng cho mỗi doanh nghiệp':'A private workspace for every business',
+'Đăng nhập an toàn, dữ liệu chỉ chia sẻ với thành viên được cấp quyền.':'Secure sign-in, data shared only with approved members.'
+});
+
+Object.assign(en,{
+ 'TRUNG TÂM ĐIỀU HÀNH THÔNG MINH':'INTELLIGENT COMMAND CENTER',
+ 'Hiểu dữ liệu sâu hơn.':'Understand the numbers.',
+ 'Ra quyết định tự tin hơn.':'Decide with confidence.',
+ 'Giám sát hoạt động, phát hiện vấn đề và chuyển từ phân tích sang hành động — trong cùng một không gian làm việc.':'Monitor operations, spot risks and turn insights into action from one workspace.',
+ 'Xem quyết định':'Review decisions',
+ 'Khám phá số liệu':'Explore analytics',
+ 'Bản đồ quyết định hôm nay':'Today’s decision map',
+ 'Việc cần ưu tiên từ dữ liệu thực tế':'Priorities grounded in recorded transactions',
+ 'Trợ lý phân tích AI':'AI insights assistant',
+ 'Gợi ý từ dữ liệu doanh nghiệp':'Business data intelligence',
+ 'Phân tích cùng AI':'Ask AI to analyze',
+ 'Theo dõi quyết định':'Track decisions',
+ 'Quản lý mục tiêu, người phụ trách và tiến độ':'Monitor goals, owners and progress',
+ 'Doanh thu theo 6 tháng':'Revenue over six months',
+ 'Sản phẩm nổi bật':'Leading products',
+ 'Thứ hạng từ số lượng thực bán':'Ranked by actual units sold',
+ 'Thao tác nhanh':'Quick actions',
+ 'Lợi nhuận sau chi phí':'Profit after expenses',
+ 'Giá vốn đã xác minh':'Verified cost of goods',
+ 'Chưa đủ dữ liệu':'Insufficient data',
+ 'Trung tâm điều hành':'Command center',
+ 'Xu hướng bán hàng và mức tin cậy':'Sales trends and confidence',
+ 'Đã bán 30 ngày gần nhất':'Units sold in the last 30 days',
+ 'Nhu cầu 30 ngày tham khảo':'Indicative demand for next 30 days',
+ 'Lượng nhập cần cân nhắc':'Potential replenishment quantity',
+ 'Chưa đủ dữ liệu để dự báo đáng tin cậy':'Insufficient history for a reliable forecast',
+ 'Giải thích và so sánh bằng AI':'AI explanation and scenario comparison',
+ 'Yêu cầu Gemini phân tích dự báo':'Ask Gemini to analyze forecast',
+ 'Cần kiểm tra':'Review needed','Ưu tiên':'Priority','Thiếu dữ liệu':'Missing data',
+ 'Theo dõi':'Monitor','Đã bán':'Units sold',
+ 'Định dạng số tiền':'Amount formatting',
+});

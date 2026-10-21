@@ -81,3 +81,34 @@ test('AI response ending in a broken bullet is continued even if finishReason is
   assert.match((await response.json()).answer,/Kết luận/);
  }finally{globalThis.fetch=previousFetch;if(oldKey===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=oldKey}
 });
+
+test('Production Supabase configuration rejects unauthenticated AI requests',async()=>{
+ const oldKey=process.env.GEMINI_API_KEY,oldUrl=process.env.SUPABASE_URL,oldPub=process.env.SUPABASE_PUBLISHABLE_KEY;
+ process.env.GEMINI_API_KEY='test-server-only-key';process.env.SUPABASE_URL='https://test-auth-project.supabase.co';process.env.SUPABASE_PUBLISHABLE_KEY='sb_publishable_test_value_012345';
+ try{
+  const r=await handler(new Request(url,{method:'POST',body:JSON.stringify({question:'Phân tích tồn kho'})}));
+  assert.equal(r.status,401);assert.match((await r.json()).error,/đăng nhập/i);
+ }finally{
+  if(oldKey===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=oldKey;
+  if(oldUrl===undefined)delete process.env.SUPABASE_URL;else process.env.SUPABASE_URL=oldUrl;
+  if(oldPub===undefined)delete process.env.SUPABASE_PUBLISHABLE_KEY;else process.env.SUPABASE_PUBLISHABLE_KEY=oldPub;
+ }
+});
+test('Production AI validates Supabase token before calling Gemini',async()=>{
+ const oldKey=process.env.GEMINI_API_KEY,oldUrl=process.env.SUPABASE_URL,oldPub=process.env.SUPABASE_PUBLISHABLE_KEY,original=globalThis.fetch;
+ process.env.GEMINI_API_KEY='test-server-only-key';process.env.SUPABASE_URL='https://test-auth-project.supabase.co';process.env.SUPABASE_PUBLISHABLE_KEY='sb_publishable_test_value_012345';
+ let authCalls=0,geminiCalls=0;
+ globalThis.fetch=async (endpoint,options)=>{
+  if(String(endpoint).includes('/auth/v1/user')){authCalls++;assert.equal(options.headers.Authorization,'Bearer validtoken');return new Response(JSON.stringify({id:'user-123'}),{status:200});}
+  geminiCalls++;return new Response(JSON.stringify({candidates:[{content:{parts:[{text:'Phân tích có xác thực.'}]},finishReason:'STOP'}]}),{status:200});
+ };
+ try{
+  const r=await handler(new Request(url,{method:'POST',headers:{Authorization:'Bearer validtoken'},body:JSON.stringify({question:'Phân tích tồn kho'})}));
+  assert.equal(r.status,200);assert.equal(authCalls,1);assert.equal(geminiCalls,1);
+ }finally{
+  globalThis.fetch=original;
+  if(oldKey===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=oldKey;
+  if(oldUrl===undefined)delete process.env.SUPABASE_URL;else process.env.SUPABASE_URL=oldUrl;
+  if(oldPub===undefined)delete process.env.SUPABASE_PUBLISHABLE_KEY;else process.env.SUPABASE_PUBLISHABLE_KEY=oldPub;
+ }
+});

@@ -32,3 +32,33 @@ export function normalizeMoneyFields(form,fields){
   }
   return fields;
 }
+
+/**
+ * Apply a single keyboard edit to the numeric value rather than to the visible
+ * grouping dots. This avoids repeating digits when the browser repositions the
+ * caret after formatting (for example 50000000 => 55555500000000).
+ * Input is an integer amount of VND; it is never parsed as a decimal number.
+ */
+export function applyMoneyEdit(display,start,end,inputType,text=''){
+  if(!['insertText','deleteContentBackward','deleteContentForward','deleteByCut'].includes(inputType))return null;
+  const old=String(display??'');
+  const begin=Math.max(0,Math.min(old.length,Number(start)||0));
+  const stop=Math.max(begin,Math.min(old.length,Number(end)||0));
+  const left=old.slice(0,begin).replace(/\D/g,'').length;
+  const right=old.slice(0,stop).replace(/\D/g,'').length;
+  let digits=old.replace(/\D/g,'');let at=left;let a=left,b=right;
+  if(inputType==='insertText'){
+    const insert=String(text??'').replace(/\D/g,'');
+    if(!insert)return {value:formatVndInput(digits),caret:begin};
+    digits=(digits.slice(0,a)+insert+digits.slice(b)).slice(0,15);
+    at=Math.min(digits.length,a+insert.length);
+  }else {
+    if(a===b&&inputType==='deleteContentBackward')a=Math.max(0,a-1);
+    if(a===b&&inputType==='deleteContentForward')b=Math.min(digits.length,b+1);
+    digits=digits.slice(0,a)+digits.slice(b);at=a;
+  }
+  const formatted=formatVndInput(digits);
+  let caret=0,n=0;
+  if(at>0){caret=formatted.length;for(let i=0;i<formatted.length;i++){if(/\d/.test(formatted[i]))n++;if(n===at){caret=i+1;break;}}}
+  return {value:formatted,caret};
+}

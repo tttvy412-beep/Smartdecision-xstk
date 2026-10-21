@@ -2,22 +2,34 @@ const escape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>'
 const logo=`<span class="rm-symbol" aria-hidden="true"><svg viewBox="0 0 40 40" width="28" height="28" fill="none"><rect x="4" y="21" width="6" height="13" rx="2" fill="currentColor" opacity=".55"/><rect x="16" y="13" width="6" height="21" rx="2" fill="currentColor" opacity=".8"/><rect x="28" y="5" width="6" height="29" rx="2" fill="currentColor"/></svg></span>`;
 export function loginView({tab='login',error='',configured=true,recovery=false}={}){
  const signup=tab==='signup',forgot=tab==='forgot';
- return `<div class="auth-shell"><div class="auth-pane"><div class="auth-inner"><div class="auth-logo">${logo}<span>Retail<span>Mind</span></span></div><div class="auth-overline">ENTERPRISE WORKSPACE</div>
- <h1>${recovery?'Đặt mật khẩu mới':signup?'Tạo tài khoản doanh nghiệp':forgot?'Khôi phục tài khoản':'Chào mừng trở lại'}</h1>
- <p class="auth-sub">${signup?'Bắt đầu với không gian quản trị riêng, an toàn cho doanh nghiệp.':forgot?'Chúng tôi gửi liên kết đặt lại mật khẩu đến email của bạn.':'Quản lý, phân tích và ra quyết định trên cùng một nền tảng.'}</p>
- ${!configured?'<div class="auth-notice">Chưa cấu hình Supabase cho bản triển khai này. Xem README-BAN-GIAO.md để thiết lập Netlify và chạy SQL.</div>':''}
- ${error?`<div class="auth-notice">${escape(error)}</div>`:''}
- ${!forgot&&!recovery?`<div class="auth-tabs"><button data-auth-tab="login" class="${signup?'':'active'}">Đăng nhập</button><button data-auth-tab="signup" class="${signup?'active':''}">Đăng ký</button></div>`:''}
+ return `<div class="auth-shell retail-auth-v8">
+ <div class="auth-pane"><div class="auth-inner">
+ <div class="auth-form-brand">${logo}<span>Retail<span>Mind</span></span></div>
+ <p class="auth-intro-label">NỀN TẢNG QUẢN TRỊ DOANH NGHIỆP</p>
+ <h1>${recovery?'Đặt mật khẩu mới':signup?'Khởi tạo tài khoản':forgot?'Lấy lại mật khẩu':'Chào mừng trở lại!'}</h1>
+ <p class="auth-sub">${signup?'Tạo tài khoản để bắt đầu quản lý không gian doanh nghiệp riêng.':forgot?'Nhập địa chỉ email để nhận liên kết đặt lại mật khẩu.':'Đăng nhập để tiếp tục điều hành và ra quyết định từ dữ liệu của bạn.'}</p>
+ ${!configured?'<div class="auth-notice">Website chưa nhận được cấu hình kết nối Supabase. Cần bổ sung biến môi trường Netlify và triển khai lại.</div>':''}
+ ${error?`<div class="auth-notice" role="alert">${escape(error)}</div>`:''}
+ ${!forgot&&!recovery?`<div class="auth-tabs" role="tablist" aria-label="Chọn cách truy cập"><button data-auth-tab="login" type="button" role="tab" aria-selected="${!signup}" class="${signup?'':'active'}">Đăng nhập</button><button data-auth-tab="signup" type="button" role="tab" aria-selected="${signup}" class="${signup?'active':''}">Đăng ký</button></div>`:''}
  <form id="auth-entry" class="auth-form">
  <input type="hidden" name="mode" value="${recovery?'reset':tab}">
- ${!recovery?`<label>Email doanh nghiệp<input type="email" name="email" placeholder="ban@doanhnghiep.vn" autocomplete="email" required></label>`:''}
- ${!forgot?`<label>${recovery?'Mật khẩu mới':'Mật khẩu'}<input type="password" name="password" minlength="6" placeholder="Tối thiểu 6 ký tự" autocomplete="${signup?'new-password':'current-password'}" required></label>`:''}
- ${signup?'<label>Nhập lại mật khẩu<input type="password" name="confirm" minlength="6" autocomplete="new-password" required></label>':''}
- <button class="btn primary auth-submit" type="submit" ${!configured?'disabled':''}>${recovery?'Lưu mật khẩu mới':signup?'Tạo tài khoản':forgot?'Gửi liên kết khôi phục':'Đăng nhập'} <span>→</span></button>
+ ${!recovery?`<label>Địa chỉ email<input type="email" name="email" placeholder="tenban@gmail.com" autocomplete="email" required></label>`:''}
+ ${!forgot?`<label>${recovery?'Mật khẩu mới':'Mật khẩu'}<input type="password" name="password" minlength="6" placeholder="Nhập mật khẩu" autocomplete="${signup?'new-password':'current-password'}" required></label>`:''}
+ ${signup?'<label>Xác nhận mật khẩu<input type="password" name="confirm" minlength="6" placeholder="Nhập lại mật khẩu" autocomplete="new-password" required></label>':''}
+ <button class="btn primary auth-submit" type="submit" ${!configured?'disabled':''}>${recovery?'Cập nhật mật khẩu':signup?'Tạo tài khoản':forgot?'Gửi liên kết khôi phục':'Đăng nhập'} <span aria-hidden="true">→</span></button>
  </form>
  <div class="auth-bottom">${forgot?'<button data-auth-tab="login">← Quay lại đăng nhập</button>':signup?'Đã có tài khoản? <button data-auth-tab="login">Đăng nhập</button>':recovery?'':`<button data-auth-tab="forgot">Quên mật khẩu?</button><p>Chưa có tài khoản? <button data-auth-tab="signup">Đăng ký ngay</button></p>`}</div>
- <div class="auth-foot">🔒 Mỗi doanh nghiệp có dữ liệu riêng • Xác minh email</div></div></div>
- <section class="auth-art" aria-label="Nền tảng quản trị kinh doanh"><div class="auth-art-grain"></div><div class="auth-skyline"></div><div class="auth-art-content"><span class="auth-pill">RETAILMIND / BUSINESS INTELLIGENCE</span><h2>Mọi quyết định tốt<br>đều bắt đầu từ<br><em>dữ liệu đáng tin cậy.</em></h2><p>Một không gian điều hành duy nhất cho mọi lĩnh vực bán lẻ — từ giao dịch hằng ngày đến phân tích chiến lược.</p><div class="auth-fake"><div class="auth-fake-head"><span>Performance overview</span><span>↗ +12.6%</span></div><div class="auth-fake-bars">${[36,50,43,70,64,84,96].map((x,i)=>`<i style="height:${x}%"></i>`).join('')}</div><small>Phân tích • Dự báo • Quyết định</small></div></div><div class="auth-art-footer">Tích hợp DSS & AI <span>✧</span> An toàn theo doanh nghiệp</div></section></div>`;
+ <div class="auth-trust"><span aria-hidden="true">♢</span><div><strong>Không gian riêng cho mỗi doanh nghiệp</strong><small>Đăng nhập an toàn, dữ liệu chỉ chia sẻ với thành viên được cấp quyền.</small></div></div>
+ <div class="auth-policy">RetailMind · Quản trị dựa trên dữ liệu</div>
+ </div></div>
+ <section class="auth-art" aria-label="Minh họa nền tảng phân tích và quản trị đa ngành">
+ <div class="auth-art-glow"></div>
+ <div class="auth-art-top"><div class="auth-art-logo">${logo}<span>RetailMind</span></div><div class="auth-lang" role="group" aria-label="Ngôn ngữ"><button type="button" data-preference="lang" data-value="vi">🇻🇳 VI</button><button type="button" data-preference="lang" data-value="en">🇬🇧 EN</button></div></div>
+ <div class="auth-art-body"><span class="auth-pill">✧ QUẢN TRỊ · PHÂN TÍCH · RA QUYẾT ĐỊNH</span><h2>Biến dữ liệu<br>thành <em>lợi thế<br>cạnh tranh.</em></h2><p>Liên kết bán hàng, tồn kho, tài chính và trí tuệ nhân tạo để quản trị hiệu quả hơn — trên mọi thiết bị.</p>
+ <div class="auth-art-benefits"><span><b>▣</b> Quản trị bán lẻ</span><span><b>▥</b> Phân tích dữ liệu</span><span><b>✦</b> Hỗ trợ quyết định</span></div></div>
+ <div class="auth-art-scene" aria-hidden="true"><div class="auth-scene-grid"></div><div class="auth-scene-building building-one"><i></i><i></i><i></i><i></i></div><div class="auth-scene-building building-two"><i></i><i></i><i></i><i></i></div><div class="auth-scene-building building-three"><i></i><i></i><i></i><i></i></div><div class="auth-floating-card auth-analytics"><div><span>▥</span> PHÂN TÍCH DOANH THU</div><div class="auth-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="auth-floating-card auth-insights"><span>✦</span><div><b>Hỗ trợ thông minh</b><small>Dự báo · Kịch bản · DSS</small></div></div><div class="auth-scene-orb"></div></div>
+ <div class="auth-art-footer">Dữ liệu hôm nay. Quyết định tốt hơn ngày mai.<span>✦</span></div>
+ </section></div>`;
 }
 export function organizationsView({user,organizations=[],error='',loading=false}={}){
  return `<div class="choose-shell"><div class="choose-wrap"><div class="auth-logo">${logo}<span>Retail<span>Mind</span></span></div><div class="choose-eyebrow">KHÔNG GIAN DOANH NGHIỆP</div><h1>Chọn nơi bạn muốn làm việc</h1><p>Đăng nhập: <strong>${escape(user?.email||'')}</strong></p>${error?`<div class="auth-notice">${escape(error)}</div>`:''}

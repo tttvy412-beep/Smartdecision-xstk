@@ -8,7 +8,25 @@ export default async (request) => {
   if(!key) return json(503,{error:'Chưa cấu hình GEMINI_API_KEY trong Netlify → Environment variables.'});
   const length=Number(request.headers.get('content-length')||0);
   if(length>40000) return json(413,{error:'Yêu cầu quá lớn.'});
-  const ip=(request.headers.get('x-nf-client-connection-ip')||request.headers.get('x-forwarded-for')||'unknown').split(',')[0].trim();
+  // For authenticated RetailMind workspaces the AI proxy must require a valid
+  // Supabase user access token, otherwise any anonymous visitor can burn the
+  // site's free Gemini quota. Verification happens on the server, not in UI.
+  const supabaseUrl=String(process.env.SUPABASE_URL||process.env.VITE_SUPABASE_URL||'').replace(/\/$/,'');
+  const publishable=String(process.env.VITE_SUPABASE_PUBLISHABLE_KEY||process.env.VITE_SUPABASE_ANON_KEY||process.env.SUPABASE_PUBLISHABLE_KEY||'');
+  if(process.env.CONTEXT==='production' && (!supabaseUrl || !publishable))return json(503,{error:'Chưa thiết lập xác thực cho Gemini. Kiểm tra cấu hình Supabase trên Netlify.'});
+  let signedInUser=null;
+  if(supabaseUrl && publishable){
+    const bearer=String(request.headers.get('authorization')||'').match(/^Bearer\s+([A-Za-z0-9._~-]+)$/i)?.[1];
+    if(!bearer)return json(401,{error:'Vui lòng đăng nhập để sử dụng trợ lý AI.'});
+    try{
+      const verified=await fetch(supabaseUrl+'/auth/v1/user',{headers:{'apikey':publishable,Authorization:'Bearer '+bearer},signal:AbortSignal.timeout(7000)});
+      if(!verified.ok)return json(401,{error:'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'});
+      const profile=await verified.json();
+      if(!profile?.id)return json(401,{error:'Phiên đăng nhập không hợp lệ.'});
+      signedInUser=profile.id;
+    }catch{return json(503,{error:'Không xác minh được phiên đăng nhập. Vui lòng thử lại.'});}
+  }
+  const ip=signedInUser||((request.headers.get('x-nf-client-connection-ip')||request.headers.get('x-forwarded-for')||'unknown').split(',')[0].trim());
   const now=Date.now();for(const [k,v] of requests) if(now-v.start>60000)requests.delete(k);
   const current=requests.get(ip)||{start:now,count:0};
   if(current.count>=5)return json(429,{error:'Bạn đã hỏi quá nhanh. Vui lòng đợi khoảng một phút.'});
