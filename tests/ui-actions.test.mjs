@@ -39,7 +39,7 @@ test('v4: mua hàng và dữ liệu tài chính có phí vận chuyển từ cù
  const id=state().products.find(p=>p.sku==='INK-NEW').id;
  const goEl={dataset:{action:'buy-product',id},classList:{contains:()=>false}};
  hooks.click({target:{closest:sel=>sel==='[data-action]'?goEl:null}});
- assert.match(els.app.innerHTML,/Nhà cung cấp & nhập hàng/);
+ assert.match(els.app.innerHTML,/Nhà cung cấp & (nhập|mua) hàng/);
  assert.match(els['modal-slot'].innerHTML,/Phí vận chuyển hàng về kho/);
  send('receive-form',{supplierId:'NCC01',productId:id,quantity:'10',unitCost:'10000',freight:'20000',handling:'0',feesBilledBySupplier:'no',paid:'20000'});
  const s=state(),prod=s.products.find(p=>p.id===id);
@@ -50,5 +50,5 @@ test('v4: mô phỏng có thể tạo hồ sơ quyết định',()=>{
  click('scenario-to-decision');
  const s=state();assert.equal(s.decisions.length,before+1);
  assert.match(s.decisions[0].reason,/giả định giá bán/);
- assert.match(els.app.innerHTML,/Hồ sơ quyết định/);
+ assert.match(els.app.innerHTML,/Vòng đời quyết định/);
 });

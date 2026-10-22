@@ -1,3 +1,12 @@
+# RetailMind v9.2 — Bố cục mới "Phố bán lẻ sắc màu"
+
+- **Bố cục:** bỏ menu trái; dùng thanh trên + dock điều hướng nổi, mỗi trang có masthead riêng; Tổng quan dạng bento; Sản phẩm dạng thẻ/bảng; Khách hàng dạng thẻ; Quyết định dạng kanban (chuyển trạng thái 1 chạm); tìm nhanh/ra lệnh bằng **Ctrl K**.
+- **Đổi màu hoạt động:** 6 bảng màu (Cầu vồng, Tím mộng, Rừng xanh, Đại dương, Hoàng hôn, Đêm xanh) — đổi được ở Cài đặt và ngay trên trang đăng nhập; mỗi khu chức năng lấy một màu của bảng đang chọn. Cỡ chữ và ngôn ngữ vẫn đổi được.
+- **Trang đăng nhập mới** (2 cột, có nút "Dùng thử với dữ liệu minh họa"), trang chọn doanh nghiệp mới.
+- **Đã kiểm tra bằng trình duyệt thật:** thêm khách/NCC/sản phẩm, tạo & nhận phiếu mua, tạo đơn, thu tiền, hoàn tiền & hủy, chi tiết đơn, kiểm kê, chi phí, quyết định (kanban), mô phỏng → quyết định, dự báo, chấm điểm NCC, tìm kiếm, đổi màu/cỡ chữ/ngôn ngữ, sao lưu JSON, xuất CSV, trợ lý chat, Ctrl K. Không lỗi JavaScript. 114/114 test tự động đạt (đã cập nhật test cho bố cục mới).
+- Gemini chỉ chạy được trên Netlify (hàm `decision-ai`); chạy cục bộ trợ lý tự dùng quy tắc DSS trong máy.
+
+---
 # RetailMind v9.0 — Nâng cấp hỗ trợ ra quyết định (DSS)
 
 **Thay đổi so với v8.2 (giữ nguyên Supabase, Gemini, dữ liệu, các chức năng cũ):**
