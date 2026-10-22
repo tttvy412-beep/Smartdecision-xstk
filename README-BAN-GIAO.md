@@ -1,83 +1,54 @@
-# RetailMind v8.1 — Sửa lỗi Netlify build thất bại
+# RetailMind v8.2 — Bản tổng hợp sửa giao diện và giao dịch
 
-**Đây là bản v8 với bản vá build Netlify; không thay đổi dữ liệu Supabase hay luồng nghiệp vụ.**
+**Bản mã nguồn có thể build, có kiểm thử tự động và kiểm thử thao tác Chromium ở môi trường giả lập.** Việc Published thành công tại Netlify của bạn, Gemini thật, xác thực Supabase và truy cập ảnh chứng từ Cloud cần người dùng xác nhận sau khi triển khai. Không nên dùng dữ liệu thật cho tới khi kiểm thử phân quyền và sao lưu.
 
-## Đã xác định nguyên nhân
+## 1. Các yêu cầu đã triển khai trong v8.2
 
-Phiên bản v8 cũ chạy `node --test tests/*.test.mjs` **ngay trong bước Netlify Production build**. Khi Netlify có `VITE_SUPABASE_URL` và `VITE_SUPABASE_PUBLISHABLE_KEY`, Netlify Function Gemini bật xác thực Supabase; các bài kiểm thử giả lập vốn không có token nhận HTTP `401` và báo fail, chặn deploy. Trên môi trường không có biến Supabase, toàn bộ test vẫn pass nên lỗi chỉ xuất hiện khi deploy thật.
+1. **Không còn chỉ tô màu Tổng quan:** mỗi trang nghiệp vụ có gam màu, header dạng bento riêng, các nút chuyển tiếp giữa những màn hình liên quan và màu nhóm chức năng. Loại bỏ banner ngang giống nhau trên các trang bên trong. Tài chính dùng bố cục ghép mảng thay vì 4 ô đều nhau. Bố cục thử tại 1420px và 390px, không tràn ngang.
+2. **Logo:** biểu tượng nền tảng RetailMind cố định cạnh chữ RetailMind; ảnh logo của doanh nghiệp chỉ hiển thị trong ô **DOANH NGHIỆP** ở menu. Cài đặt vẫn có tải/xóa logo.
+3. **Tiền Việt Nam:** các trường nhập có bản chất là tiền dùng dữ liệu số nguyên VND và định dạng dấu chấm ngay khi gõ. Đã thử `50000000` → `50.000.000` *trước khi Enter*, và số thu tiền `150000` → `150.000`. Không nhầm với số lượng hoặc phần trăm.
+4. **Cảnh báo mua hàng:** khi mở **Nhà cung cấp & nhập hàng → Tạo phiếu mua**, các SKU có tồn bằng hoặc thấp hơn ngưỡng được nhắc ngay trong biểu mẫu. Bấm một sản phẩm để điền tên và lượng bổ sung tối thiểu; người dùng vẫn cần xác nhận lượng nhập và kiểm tra đơn đang giao.
+5. **Đơn hàng & chứng từ:** nút **Chi tiết & ảnh** tại từng đơn mở một hồ sơ riêng gồm số tiền đã thu, hoàn tiền, còn phải thu, từng lần thanh toán, từng lần hoàn tiền và vị trí ảnh/PDF tương ứng. Có nút xem và bổ sung chứng từ **không ghi thêm tiền**, kể cả cho giao dịch cũ.
+6. **Đã hủy:** đơn hủy không hiển thị thao tác thu tiền; chi tiết đơn cũ vẫn truy cập được để kiểm tra chứng từ đã thu/đã hoàn. Thao tác hoàn tiền hợp lệ vẫn theo nguyên tắc của lõi dữ liệu: số tiền đã thu phải được hoàn đủ trước khi hủy đơn, không để tồn kho/doanh thu mâu thuẫn.
+7. **Trợ lý giọng nói:** bật chế độ nghe từ nút **Gọi RetailMind** (cần bấm để cấp quyền micro); khi trang đang mở, nói "RetailMind" / "Hey RetailMind" / "Xin chào RetailMind" để mở và hỏi. Có đọc phản hồi bằng `speechSynthesis` khi đã bật. **Không phải Siri cấp hệ điều hành:** trình duyệt cần hỗ trợ `SpeechRecognition`, HTTPS, và trang phải đang hoạt động; không nghe khi đóng web / chạy nền. Micro mặc định tắt.
+8. **Hình minh họa:** thêm 8 ảnh vector SVG cho các nhóm sản phẩm (thời trang, điện tử, gia dụng, thực phẩm, đồ uống, văn phòng, mỹ phẩm và khác). Ảnh sản phẩm do người dùng tải luôn ưu tiên hơn hình minh họa.
+9. **Bảo vệ doanh nghiệp:** khi đăng nhập, chứng từ không được đọc nhầm từ IndexedDB của chế độ demo cục bộ; chỉ sử dụng đúng Storage của doanh nghiệp. Giữ nguyên cơ chế Supabase Auth/RLS và 6 bảng demo cũ.
 
-Sửa ở v8.1:
-- Netlify chạy `npm run build`, việc build chỉ thực hiện `node build.mjs`, không chạy bài kiểm thử giả lập bằng biến môi trường production.
-- `npm test` được giữ riêng; các bài kiểm thử Gemini giả lập được cô lập khỏi cấu hình production nên có thể chạy ổn khi Netlify có Supabase Auth.
-- Thêm `.nvmrc` để yêu cầu Node 22 và loại bỏ khoảng trắng thừa ở biến URL/key khi build.
-- Không thay đổi 6 bảng demo, 4 bảng `rm_*`, chính sách RLS, tài khoản, Gemini key.
+## 2. Những việc vẫn có giới hạn
 
-## Cách cập nhật
+- **Không đảm bảo trợ lý đánh thức bằng tên** hoạt động trên mọi trình duyệt/điện thoại. Web Speech API phụ thuộc trình duyệt, quyền micro, hỗ trợ tiếng Việt và trạng thái tab. Không ghi âm liên tục mặc định, không điều khiển thiết bị như Siri thật.
+- **Ảnh chuyển khoản không xác minh đã thanh toán thành công**; phần mềm chỉ lưu chứng từ và giao dịch do người dùng xác nhận.
+- Giao diện VI/EN ở các màn hình nghiệp vụ sâu **chưa dịch hoàn toàn**; cần hoàn thiện nếu sử dụng tiếng Anh toàn phần.
+- Đăng nhập Supabase thật, chứng từ tải lên Supabase Storage, AI Gemini bằng API key thật, và hai người ghi dữ liệu **đồng thời** chưa được kiểm thử trực tiếp ở website của bạn. Hiện mô hình dữ liệu doanh nghiệp dùng JSON theo phiên bản, không phải database giao dịch chi tiết mọi nghiệp vụ.
+- Chưa bổ sung chức năng **hoàn tiền từng phần**; lõi đang hỗ trợ hoàn đủ để hủy đơn. Đổi màu/cỡ chữ/ngôn ngữ là tùy chọn theo thiết bị; logo và dữ liệu kinh doanh lưu theo doanh nghiệp.
+- Bản sao lưu JSON của doanh nghiệp bao gồm **metadata tham chiếu chứng từ cloud**, không tự tải toàn bộ tệp từ Storage về trong JSON. Chứng từ được giữ trên Supabase Storage với quyền truy cập riêng.
 
-1. Giải nén ZIP **RetailMind-v8.1-Fix-Netlify.zip**.
-2. Mở thư mục **RetailMind-v8.1-Fix-Netlify** bên trong, copy toàn bộ nội dung.
-3. GitHub Desktop → Repository → Show in Explorer → dán **Replace**, KHÔNG xóa hết thư mục repo.
-4. Commit: `RetailMind v8.1 - Sua loi build Netlify` → **Push origin** để Netlify tự deploy. Không cần bấm Retry ở bản đã Failed.
-5. Khi hiện `Published`, đăng nhập và kiểm thử website. Nếu phát sinh lỗi mới, báo lại cùng ảnh.
+## 3. Kiểm thử hoàn thành trong môi trường làm việc
 
-Đã kiểm thử bằng Node 22: test chạy trong môi trường giả lập Netlify Production có đủ biến Supabase và `GEMINI_API_KEY`, sau đó build tạo `dist/`. **Chưa xác nhận bản v8.1 Published trên Netlify của người dùng**.
+- `npm test`: **110/110 bài tự động đạt**.
+- `npm run build`: thành công, tạo thư mục `dist/`, không cần tải npm phụ thuộc ngoài.
+- Chromium tương tác thực tế ở 1420px: nhập số tiền ngay khi gõ, hiển thị nhắc mua hàng thiếu, vào chi tiết đơn, ghi nhận 150.000đ, hoàn 150.000đ, đơn chuyển đã hủy, không còn nút thu; duyệt 11 trang chức năng không lỗi JavaScript và không tràn ngang.
+- Chromium 390px: kiểm tra tổng quan mobile, không lỗi JavaScript hoặc tràn ngang.
+- Kiểm thử trên web thật và bản ghi chứng từ Supabase Storage chưa được thực hiện.
+
+## 4. Cập nhật đúng một lần, theo cách Copy → Replace
+
+1. Sao lưu dữ liệu hiện tại của doanh nghiệp nếu có dữ liệu cần giữ: **Cài đặt → Xuất sao lưu JSON**. Bản xuất này không tự tải ảnh cloud về — các ảnh vẫn ở Supabase Storage.
+2. Giải nén file `RetailMind-v8.2-GiaoDien-NghiepVu-GiongNoi.zip`.
+3. Mở thư mục **RetailMind-v8.2** và copy **mọi file bên trong**.
+4. GitHub Desktop → **Repository → Show in Explorer** → dán **Replace** vào thư mục repository hiện có (không xóa sạch repository trước khi dán).
+5. GitHub Desktop → nhập Commit `RetailMind v8.2 - Giao dien da sac va chung tu giao dich` → **Commit to main → Push origin**.
+6. Netlify dự án `retailmind-xstk` tự build/publish. Xem trạng thái **Published**; nếu Failed, xem log. Không bấm Retry liên tục.
+
+**Không cần chạy lại SQL** `SETUP-RETAILMIND.sql` nếu bốn bảng `rm_*` đã có RLS như trước. Giữ các biến `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `GEMINI_API_KEY` (server-only). **Không gửi API key bí mật cho bất kỳ ai**, không bật public write cho bảng dữ liệu.
+
+## 5. Kiểm tra 5 việc sau khi Published
+
+1. Trên **Sản phẩm → Sửa** và **Mua hàng → Tạo phiếu**, gõ `50000000`, phải thấy `50.000.000` ngay khi gõ, chưa Enter.
+2. Vào **Mua hàng → Tạo phiếu**, kiểm tra phần "Cần ưu tiên nhập bổ sung" và bấm nhanh sản phẩm thiếu.
+3. Vào **Bán hàng → Đơn hàng → Chi tiết & ảnh**, thử thanh toán kèm ảnh, mở lại hồ sơ, xem ảnh; thử hoàn tiền với ảnh riêng và kiểm tra không còn nút thu ở đơn hủy.
+4. Đổi logo doanh nghiệp, kiểm tra ảnh **chỉ đổi ở thẻ DOANH NGHIỆP**, không đổi biểu tượng RetailMind phía trên; xem giao diện Finance, Kho và DSS có màu bố cục riêng; thử trên điện thoại.
+5. Bấm **Gọi RetailMind**, cấp quyền micro nếu trình duyệt hỗ trợ, nói "RetailMind, phân tích hàng tồn" rồi kiểm tra hiển thị và đọc câu trả lời. Nếu trình duyệt không hỗ trợ nhận dạng tiếng Việt, dùng nút micro trong khung chat hoặc nhập chữ như bình thường.
 
 ---
-
-# RetailMind v8 — Giao diện trung tâm điều hành & sửa lỗi tổng hợp
-
-> Phiên bản mã nguồn có thể build và kiểm thử trong môi trường phát triển, **chưa phải chứng nhận đã chạy ổn trên Supabase/Netlify thật của người dùng**.
-
-## 1. Những thay đổi đã lập trình
-
-**Giao diện mới có bản sắc**
-- Thiết kế lại **Đăng nhập / Đăng ký / Quên mật khẩu** thành hai khu vực: nội dung minh họa doanh nghiệp đa ngành màu xanh và biểu mẫu xác thực rõ ràng; không dùng hình quần áo, không có nút Google/Microsoft giả khi chưa cấu hình OAuth.
-- Trang **Tổng quan** được thay thành trung tâm điều hành kiểu bento: biểu ngữ điều hành, 4 KPI mang màu sắc riêng, bản đồ việc cần xử lý, trợ lý AI, quyết định chờ xử lý, biểu đồ doanh thu thực, sản phẩm bán chạy, thao tác nhanh.
-- **Logo doanh nghiệp nằm trong ô doanh nghiệp ở menu**, thay biểu tượng ngôi nhà, giới hạn kích thước để ảnh không tràn. Vẫn giữ logo RetailMind cho nền tảng.
-- Giao diện tương thích máy tính, máy tính bảng, điện thoại theo quy tắc responsive; nút trợ lý AI thu gọn hình vuông để không che nút thao tác. Có thể kéo thanh tiêu đề trợ lý, đổi vị trí.
-- Màu sắc của menu và màn hình điều hành sử dụng biến theme cài đặt; người dùng vẫn chọn 6 màu, 3 kích thước chữ, tiếng Việt hoặc tiếng Anh; có thêm bản dịch cho các nhãn chính mới (chưa dịch toàn bộ nội dung nghiệp vụ dài).
-
-**Độ tin cậy nghiệp vụ**
-- Sửa thao tác nhập tiền bằng **xử lý thay đổi tại `beforeinput` theo chữ số**, tránh hiện tượng lặp chữ số khi vừa gõ vừa tự chèn dấu chấm; giữ vị trí con trỏ, xóa qua dấu ngăn cách và xử lý dán số. Số `50000000` phải hiện **50.000.000**; dữ liệu tính theo VND nguyên.
-- Nâng cấp **Dự báo nhu cầu**: đọc lượng bán của sản phẩm theo ba kỳ 30 ngày, so sánh xu hướng và đánh giá đủ dữ liệu; chỉ tính lượng cần cân nhắc nhập khi có đủ lịch sử theo nhiều kỳ. Giữ mô hình thống kê có thể kiểm tra, không tự nói Gemini tạo dự báo đáng tin khi mẫu quá ít.
-- Bổ sung thao tác yêu cầu Gemini giải thích xu hướng và so sánh các tình huống; gửi thêm tóm tắt mô hình có nguồn từ doanh nghiệp hiện tại. Lưu phương án dự báo vào Theo dõi quyết định khi đủ dữ liệu.
-- **Ngăn hiển thị hội thoại Gemini từ doanh nghiệp A trong doanh nghiệp B** khi chuyển không gian hoặc đăng xuất; bỏ phản hồi bất đồng bộ từ không gian cũ.
-- Netlify Function Gemini **yêu cầu xác thực Supabase** khi dự án có cấu hình Supabase; xác minh Bearer token qua `/auth/v1/user`, giới hạn số lần gọi theo tài khoản. Nếu môi trường Production thiếu cấu hình xác thực, từ chối gọi Gemini để bảo vệ hạn mức API. Khóa Gemini luôn ở server.
-- Giữ các nghiệp vụ cũ: hình ảnh sản phẩm, kho, mua hàng nhiều đợt, kiểm nhận, công nợ và chứng từ, khách hàng, tài chính, mô phỏng, so sánh nhà cung cấp, quyết định và quản lý doanh nghiệp.
-
-**Sửa lỗi cuộn được kế thừa từ v7.2**: không ngăn sự kiện wheel trên ô nhập tiền; với input số kiểu quantity sẽ blur thay vì chặn cuộn; menu và bảng có vùng cuộn riêng; chấm dứt trạng thái kéo chatbot khi mất pointer.
-
-## 2. Kết quả kiểm tra tại thời điểm đóng gói
-
-- `npm test` (Node test runner): **110/110 bài đạt**. Bộ kiểm tra bao gồm nghiệp vụ cũ, auth client giả lập, xử lý tiền `50000000`, dự báo dữ liệu ít/nhiều kỳ, và xác thực proxy Gemini giả lập.
-- `node build.mjs`: build `dist/` thành công, **không cần npm install**. Không ghi service_role hay Gemini key vào file được trình duyệt tải.
-- Kiểm tra giao diện **tĩnh** bằng Chromium với ảnh chụp màn hình ở 390 / 820 / 1440px, không có tràn ngang. Hạn chế môi trường: trình duyệt chặn điều hướng tới máy chủ test nên **không chạy được luồng đăng nhập/nhập tiền end-to-end bằng trang thực**; các thao tác trên đã kiểm thử bằng Node, ảnh chụp phản ánh giao diện dựng từ mã nguồn.
-
-## 3. Cập nhật qua GitHub Desktop
-
-1. Nếu đang có dữ liệu thật, vào Cài đặt → Xuất bản sao lưu JSON trước. Dữ liệu nằm trong Supabase theo doanh nghiệp nhưng bản sao lưu riêng vẫn có ích.
-2. Giải nén ZIP; mở **thư mục RetailMind-v8**, sao chép **toàn bộ file/thư mục bên trong** (không sao chép thư mục cha).
-3. GitHub Desktop → **Repository → Show in Explorer**, dán → **Replace files**. Không xóa thư mục dự án trước khi dán (giữ `.git`).
-4. Commit: `RetailMind v8 - Giao dien dieu hanh va sua loi tong hop` → **Push origin**. Netlify tự deploy từ GitHub.
-5. Bảo đảm Netlify **đúng project `retailmind-xstk`** có `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` và server-only `GEMINI_API_KEY` nếu dùng Gemini. Không gửi key cho người khác. Build bắt buộc có hai biến Supabase để login hoạt động.
-6. **Supabase Auth → URL Configuration**: vì website bạn hiện dùng `https://retailmind-xstk.netlify.app/`, hãy thêm URL này làm **Site URL** và `https://retailmind-xstk.netlify.app/**` trong Redirect URLs (nếu chưa có), để xác minh email/quên mật khẩu không điều hướng về website SmartDecision cũ. Không cần chạy lại SQL `SETUP-RETAILMIND.sql` nếu bốn bảng `rm_*` và RLS đã tạo trước đây.
-
-## 4. Thử ngay sau deploy
-
-1. Đăng ký bằng email hợp lệ và xác minh; đăng nhập rồi chọn/tạo doanh nghiệp. Dùng 2 tài khoản thuộc 2 doanh nghiệp để xác nhận riêng dữ liệu; không dùng dữ liệu bí mật trước khi xác nhận.
-2. Ở Tổng quan, các thẻ phải đúng số liệu; bấm vấn đề thiếu kho thì chuyển sang Kho. Menu giữ cuộn, mobile không tràn ngang.
-3. Vào Sản phẩm → Thêm sản phẩm, nhập giá `50000000`; phải hiện `50.000.000`. Thử xóa, đặt con trỏ giữa số, bấm Backspace, dán `5.000.000` và cuộn chuột.
-4. Dự báo sản phẩm ít dữ liệu phải ghi **chưa đủ để dự báo**; với nhiều đơn ở nhiều tháng mới có kết quả tham khảo và hướng dẫn độ tin cậy. Bấm AI phân tích, kiểm tra không cắt nội dung và giữ dữ liệu đúng doanh nghiệp.
-5. Chuyển doanh nghiệp, mở AI; hội thoại từ doanh nghiệp trước không được xuất hiện.
-6. Thử nhập kho → thanh toán từng lần/đính kèm hóa đơn → xem công nợ → tài chính → quyết định. Thử màu giao diện, cỡ chữ và Việt/Anh.
-
-## 5. Những giới hạn chưa thể tuyên bố là hoàn thành
-
-- Chưa được kiểm thử trực tiếp trên Netlify thật, Gemini key thật, Supabase Auth/Storage và kết nối từ hai thiết bị thật. Hãy dùng dữ liệu demo khi xác minh.
-- Chế độ VI/EN dịch menu và nhiều giao diện nhưng **chưa bao phủ 100% thông báo và mọi nội dung dài**; nội dung sản phẩm/khách hàng nhập vào không tự dịch.
-- Phiên bản này tiếp tục dùng **một tài liệu JSON theo doanh nghiệp với kiểm tra version**, chưa phải hệ thống giao dịch đa bảng có đồng bộ realtime/khóa giao dịch; hai thành viên sửa cùng lúc có thể cần tải lại và xử lý xung đột.
-- Vai trò `member` hiện có thể sửa đa số dữ liệu nghiệp vụ trong doanh nghiệp; chưa có ma trận phân quyền sâu như chỉ kế toán mới ghi được thu/chi. Cần thiết kế thêm nếu đưa vào vận hành thật.
-- Ảnh chuyển khoản/chứng từ không xác thực được ngân hàng đã nhận tiền; người quản lý phải đối chiếu.
-- Gemini chỉ hỗ trợ phân tích; kết quả không thay thế chuyên môn quản trị và có thể gặp 429/503.
-
-**Quan trọng:** Sáu bảng SmartDecision demo cũ không bị thay đổi bởi v8. Không bật anonymous writes hoặc tắt RLS để sửa lỗi đăng nhập.
+Đây là bản nâng cấp nhằm giải quyết các lỗi mới nhất bạn đã báo; không tuyên bố đã kiểm thử xong mọi cấu hình Supabase/Netlify hay mọi đường đi nghiệp vụ trên thiết bị thật.

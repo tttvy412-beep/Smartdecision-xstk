@@ -5,6 +5,7 @@ await rm(out,{recursive:true,force:true});await mkdir(out,{recursive:true});
 await copyFile(join(root,'index.html'),join(out,'index.html'));
 await copyFile(join(root,'styles.css'),join(out,'styles.css'));
 await cp(join(root,'src'),join(out,'src'),{recursive:true});
+await cp(join(root,'assets'),join(out,'assets'),{recursive:true});
 // Only embed the SUPABASE PUBLISHABLE key, never a service-role / secret key.
 // Legacy Netlify variables already use these VITE_-prefixed names.
 const publicUrl=String(process.env.VITE_SUPABASE_URL||process.env.SUPABASE_URL||'').trim();
