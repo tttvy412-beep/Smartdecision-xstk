@@ -3,7 +3,7 @@ import {resolve,join} from 'node:path';
 const root=resolve(import.meta.dirname),out=join(root,'dist');
 await rm(out,{recursive:true,force:true});await mkdir(out,{recursive:true});
 await copyFile(join(root,'index.html'),join(out,'index.html'));
-await copyFile(join(root,'styles.css'),join(out,'styles.css'));
+await copyFile(join(root,'styles.css'),join(out,'styles.css'));await copyFile(join(root,'styles-v9.css'),join(out,'styles-v9.css'));
 await cp(join(root,'src'),join(out,'src'),{recursive:true});
 await cp(join(root,'assets'),join(out,'assets'),{recursive:true});
 // Only embed the SUPABASE PUBLISHABLE key, never a service-role / secret key.

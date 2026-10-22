@@ -21,7 +21,7 @@ export function analyzeDemand(state,productId,stock=0,min=0,now=new Date()){
  const sufficient=sampleOrders>=5&&periods>=2&&dates.size>=4;
  const previous=middle||older;
  const trend=(previous>0)?(recent-previous)/previous:null;
- const trendLabel=trend===null?'Chưa đủ dữ liệu đối chiếu':trend>0.15?'Lượng bán có xu hướng tăng':trend<-.15?'Lượng bán có xu hướng giảm':'Lượng bán tương đối ổn định';
+ const trendLabel=(trend===null||!sufficient)?'Chưa đủ dữ liệu đối chiếu':trend>0.15?'Lượng bán có xu hướng tăng':trend<-.15?'Lượng bán có xu hướng giảm':'Lượng bán tương đối ổn định';
  // Weighted run-rate: clearly a scenario based on sales, not a claimed AI forecast.
  const raw=older*.2+middle*.3+recent*.5;
  const projected=sufficient?Math.max(0,Math.round(raw)):null;

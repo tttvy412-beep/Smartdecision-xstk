@@ -1,3 +1,16 @@
+# RetailMind v9.0 — Nâng cấp hỗ trợ ra quyết định (DSS)
+
+**Thay đổi so với v8.2 (giữ nguyên Supabase, Gemini, dữ liệu, các chức năng cũ):**
+1. **Điểm sức khỏe kinh doanh (Tổng quan):** 0–100 từ các chỉ số đo được (tồn kho an toàn, chất lượng giá vốn, biên gộp, lợi nhuận sau chi phí, thu hồi công nợ, giao hàng đúng hẹn). Thiếu dữ liệu thì hiển thị “chưa đủ”, không bịa số. Mã: `src/insights.mjs`.
+2. **Phân tích kinh doanh:** thêm phân loại **ABC (Pareto)** và **số ngày tồn kho còn đáp ứng** (tồn ÷ tốc độ bán 30 ngày).
+3. **Sửa lỗi dự báo:** không còn hiển thị “xu hướng giảm/tăng” khi dữ liệu chưa đủ; sửa dấu chấm kép trong phần giải thích.
+4. **Sửa lỗi hiển thị:** ảnh sản phẩm lỗi có ảnh minh họa dự phòng (không còn chữ alt tràn khung); bảng trong khung 2 cột không còn bị cắt cột; thêm favicon; `serve.mjs` phục vụ đúng SVG khi chạy thử cục bộ.
+5. **Giao diện mới “Sắc màu chợ phố” (`styles-v9.css`):** sidebar tím đêm với từng mục một màu, banner hero gradient nhiều màu, thẻ số liệu khối màu đặc, mỗi trang nghiệp vụ có một gam màu riêng (đơn hàng hồng, sản phẩm vàng, kho xanh lơ, tài chính xanh lá, phân tích tím…), nút/pill dạng gradient, font Be Vietnam Pro. Logic màu: màu trang = khu chức năng; xanh lá = tốt, cam = cần theo dõi, đỏ = rủi ro. Có thể đổi màu chủ đạo trong Cài đặt như cũ.
+6. Thêm 4 bài kiểm thử (`tests/v9-insights.test.mjs`): tổng 114/114 đạt; `npm run build` thành công.
+
+Triển khai: copy → replace như hướng dẫn bên dưới; không cần chạy lại SQL, không đổi biến môi trường Netlify.
+
+---
 # RetailMind v8.2 — Bản tổng hợp sửa giao diện và giao dịch
 
 **Bản mã nguồn có thể build, có kiểm thử tự động và kiểm thử thao tác Chromium ở môi trường giả lập.** Việc Published thành công tại Netlify của bạn, Gemini thật, xác thực Supabase và truy cập ảnh chứng từ Cloud cần người dùng xác nhận sau khi triển khai. Không nên dùng dữ liệu thật cho tới khi kiểm thử phân quyền và sao lưu.

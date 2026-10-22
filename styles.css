@@ -397,3 +397,18 @@ html[lang="vi"] .auth-lang [data-value="vi"],html[lang="en"] .auth-lang [data-va
 @media(max-width:550px){.page-content[data-page="finance"]>.metrics,.page-content[data-page="inventory"]>.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.page-content[data-page="finance"]>.metrics>.metric:first-child{min-height:165px}}
 .wake-toggle .wake-emoji{font-size:16px;line-height:1}.wake-toggle .wake-label{font-size:11px}
 @media(max-width:850px){.wake-toggle{font-size:11px}.wake-toggle .wake-label{display:none}.wake-toggle .wake-emoji{font-size:18px}}
+
+/* v9 DSS insights */
+.health-card{display:flex;gap:22px;align-items:center;background:var(--panel,#fff);border:1px solid #e3ebf7;border-radius:22px;padding:20px 24px;margin:0 0 18px;box-shadow:0 10px 30px rgba(30,64,130,.06)}
+.health-ring{--p:0;flex:none;width:104px;height:104px;border-radius:50%;display:grid;place-content:center;text-align:center;background:radial-gradient(closest-side,#fff 76%,transparent 78%),conic-gradient(var(--hc,#2563eb) calc(var(--p)*1%),#e8eef8 0)}
+.health-ring b{font-size:30px;line-height:1;color:#10264d}.health-ring small{font-size:11px;color:#7a8aa6}.muted-ring b{color:#9aa8c0}
+.tone-ok{--hc:#10a67a}.tone-warn{--hc:#e59a1b}.tone-bad{--hc:#e0455b}
+.health-body{min-width:0;flex:1}.health-body h2{margin:0 0 4px;font-size:17px}.health-body h2 em{font-style:normal;color:var(--hc,#2563eb)}.health-body p{margin:0 0 12px;color:#62748f;font-size:13px}
+.health-parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px 22px}
+.health-part span{font-size:12px;font-weight:700;color:#243a63}.health-part small{display:block;font-size:11px;color:#7a8aa6;margin-top:3px}
+.health-bar{height:7px;border-radius:9px;background:#e8eef8;overflow:hidden;margin-top:4px}.health-bar i{display:block;height:100%;border-radius:9px;background:var(--hc,#2563eb)}
+.abc{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;font-weight:900;font-size:12px;color:#fff}
+.abc-A{background:#10a67a}.abc-B{background:#e59a1b}.abc-C{background:#8a97ad}
+.product-thumb,.top-product-image img{object-fit:cover;overflow:hidden}.top-product-image{overflow:hidden}.top-product-image img{width:100%;height:100%}
+@media(max-width:720px){.health-card{flex-direction:column;align-items:flex-start;padding:18px}}
+.page-content .columns.half{grid-template-columns:repeat(auto-fit,minmax(min(100%,580px),1fr))}

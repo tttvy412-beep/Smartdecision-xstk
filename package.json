@@ -1,6 +1,6 @@
 {
   "name": "retailmind-mis-dss",
-  "version": "8.2.0",
+  "version": "9.0.0",
   "private": true,
   "type": "module",
   "description": "RetailMind MIS/DSS without runtime third-party dependencies",
