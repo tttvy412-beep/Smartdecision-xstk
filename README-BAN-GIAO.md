@@ -1,3 +1,29 @@
+# RetailMind v8.1 — Sửa lỗi Netlify build thất bại
+
+**Đây là bản v8 với bản vá build Netlify; không thay đổi dữ liệu Supabase hay luồng nghiệp vụ.**
+
+## Đã xác định nguyên nhân
+
+Phiên bản v8 cũ chạy `node --test tests/*.test.mjs` **ngay trong bước Netlify Production build**. Khi Netlify có `VITE_SUPABASE_URL` và `VITE_SUPABASE_PUBLISHABLE_KEY`, Netlify Function Gemini bật xác thực Supabase; các bài kiểm thử giả lập vốn không có token nhận HTTP `401` và báo fail, chặn deploy. Trên môi trường không có biến Supabase, toàn bộ test vẫn pass nên lỗi chỉ xuất hiện khi deploy thật.
+
+Sửa ở v8.1:
+- Netlify chạy `npm run build`, việc build chỉ thực hiện `node build.mjs`, không chạy bài kiểm thử giả lập bằng biến môi trường production.
+- `npm test` được giữ riêng; các bài kiểm thử Gemini giả lập được cô lập khỏi cấu hình production nên có thể chạy ổn khi Netlify có Supabase Auth.
+- Thêm `.nvmrc` để yêu cầu Node 22 và loại bỏ khoảng trắng thừa ở biến URL/key khi build.
+- Không thay đổi 6 bảng demo, 4 bảng `rm_*`, chính sách RLS, tài khoản, Gemini key.
+
+## Cách cập nhật
+
+1. Giải nén ZIP **RetailMind-v8.1-Fix-Netlify.zip**.
+2. Mở thư mục **RetailMind-v8.1-Fix-Netlify** bên trong, copy toàn bộ nội dung.
+3. GitHub Desktop → Repository → Show in Explorer → dán **Replace**, KHÔNG xóa hết thư mục repo.
+4. Commit: `RetailMind v8.1 - Sua loi build Netlify` → **Push origin** để Netlify tự deploy. Không cần bấm Retry ở bản đã Failed.
+5. Khi hiện `Published`, đăng nhập và kiểm thử website. Nếu phát sinh lỗi mới, báo lại cùng ảnh.
+
+Đã kiểm thử bằng Node 22: test chạy trong môi trường giả lập Netlify Production có đủ biến Supabase và `GEMINI_API_KEY`, sau đó build tạo `dist/`. **Chưa xác nhận bản v8.1 Published trên Netlify của người dùng**.
+
+---
+
 # RetailMind v8 — Giao diện trung tâm điều hành & sửa lỗi tổng hợp
 
 > Phiên bản mã nguồn có thể build và kiểm thử trong môi trường phát triển, **chưa phải chứng nhận đã chạy ổn trên Supabase/Netlify thật của người dùng**.

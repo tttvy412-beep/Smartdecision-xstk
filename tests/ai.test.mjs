@@ -1,7 +1,16 @@
-import test from 'node:test';
+import test, {after} from 'node:test';
 import assert from 'node:assert/strict';
 import handler from '../netlify/functions/decision-ai.mjs';
 const url='http://localhost/.netlify/functions/decision-ai';
+// Isolate mocked AI requests from production Netlify environment variables.
+// Without this, real Supabase config enables authorization and changes mocked
+// responses from HTTP 200 to 401, causing a false build failure.
+const isolatedKeys=['CONTEXT','SUPABASE_URL','VITE_SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','VITE_SUPABASE_PUBLISHABLE_KEY','VITE_SUPABASE_ANON_KEY'];
+const restoredEnvironment=new Map(isolatedKeys.map(key=>[key,process.env[key]]));
+for(const key of isolatedKeys) delete process.env[key];
+process.env.CONTEXT='test';
+after(()=>{for(const [key,value] of restoredEnvironment){if(value===undefined)delete process.env[key];else process.env[key]=value;}});
+
 test('Netlify AI endpoint rejects GET before accessing external API',async()=>{
  const r=await handler(new Request(url,{method:'GET'}));
  assert.equal(r.status,405);

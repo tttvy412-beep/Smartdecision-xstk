@@ -7,8 +7,8 @@ await copyFile(join(root,'styles.css'),join(out,'styles.css'));
 await cp(join(root,'src'),join(out,'src'),{recursive:true});
 // Only embed the SUPABASE PUBLISHABLE key, never a service-role / secret key.
 // Legacy Netlify variables already use these VITE_-prefixed names.
-const publicUrl=process.env.VITE_SUPABASE_URL||process.env.SUPABASE_URL||'';
-const publicKey=process.env.VITE_SUPABASE_PUBLISHABLE_KEY||process.env.VITE_SUPABASE_ANON_KEY||'';
+const publicUrl=String(process.env.VITE_SUPABASE_URL||process.env.SUPABASE_URL||'').trim();
+const publicKey=String(process.env.VITE_SUPABASE_PUBLISHABLE_KEY||process.env.VITE_SUPABASE_ANON_KEY||'').trim();
 if(publicUrl && !/^https:\/\/[a-zA-Z0-9-]+\.supabase\.co\/?$/.test(publicUrl))throw Error('Invalid public Supabase URL configuration');
 if(publicKey && !/^(sb_publishable_|eyJ)/.test(publicKey))throw Error('A publishable/anon key is required; never use a secret key');
 const config={url:publicUrl,publishableKey:publicKey};
