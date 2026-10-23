@@ -30,7 +30,7 @@ export class RetailCloud {
     try{if(this.session.expires_at<Date.now()/1000+60)await this.refresh();this.user=await this.request('/auth/v1/user');return true;}
     catch{this.keepSession(null);this.user=null;return false;}
   }
-  async signup(email,password){return this.request('/auth/v1/signup',{method:'POST',body:{email,password,data:{source:'RetailMind'}},auth:false});}
+  async signup(email,password,redirectTo=''){return this.request('/auth/v1/signup'+(redirectTo?'?redirect_to='+encodeURIComponent(redirectTo):''),{method:'POST',body:{email,password,data:{source:'RetailMind'}},auth:false});}
   async login(email,password){const s=await this.request('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password},auth:false});this.keepSession(s);this.user=await this.request('/auth/v1/user');return this.user;}
   async recover(email,redirectTo){return this.request('/auth/v1/recover?redirect_to='+encodeURIComponent(redirectTo),{method:'POST',body:{email},auth:false});}
   async updatePassword(password){return this.request('/auth/v1/user',{method:'PUT',body:{password}});}

@@ -76,7 +76,8 @@ returns text language plpgsql security definer set search_path = '' as $$
 declare code text;
 begin
  if auth.uid() is null or not public.rm_manager(p_organization_id) then raise exception 'Không có quyền mời thành viên'; end if;
- code:=encode(gen_random_bytes(18),'hex');
+ -- gen_random_uuid() là hàm lõi (pg_catalog) nên chạy được với search_path rỗng; gen_random_bytes của pgcrypto thì không.
+ code:=replace(gen_random_uuid()::text,'-','')||substr(replace(gen_random_uuid()::text,'-',''),1,8);
  insert into public.rm_invites(organization_id,invite_code,created_by,expires_at,max_uses)
  values(p_organization_id,code,auth.uid(),now()+interval '7 days',10);
  return code;

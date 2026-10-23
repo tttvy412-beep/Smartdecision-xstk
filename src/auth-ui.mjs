@@ -14,7 +14,7 @@ const stage=`<section class="lg-stage" aria-label="Minh họa nền tảng Retai
  <i class="lg-orb o1"></i><i class="lg-orb o2"></i><i class="lg-orb o3"></i>
 </div>
 <div class="lg-tape"><div>${[...tape,...tape,...tape].map(t=>`<span>${t}</span><i>✦</i>`).join('')}</div></div></section>`;
-export function loginView({tab='login',error='',configured=true,recovery=false,theme='blue',lang='vi'}={}){
+export function loginView({tab='login',error='',configured=true,recovery=false,theme='blue',lang='vi',invited=false}={}){
  const signup=tab==='signup',forgot=tab==='forgot';
  return `<div class="lg-shell">${stage}
  <section class="lg-form-side"><div class="lg-form-card">
@@ -24,6 +24,7 @@ export function loginView({tab='login',error='',configured=true,recovery=false,t
  <p class="lg-sub">${signup?'Tạo tài khoản để bắt đầu quản lý không gian doanh nghiệp riêng.':forgot?'Nhập địa chỉ email để nhận liên kết đặt lại mật khẩu.':recovery?'Chọn mật khẩu mới cho tài khoản của bạn.':'Đăng nhập để tiếp tục điều hành và ra quyết định từ dữ liệu của bạn.'}</p>
  ${!configured?'<div class="auth-notice">Website chưa nhận được cấu hình kết nối Supabase. Cần bổ sung biến môi trường Netlify và triển khai lại.</div>':''}
  ${error?`<div class="auth-notice" role="alert">${escape(error)}</div>`:''}
+ ${invited?'<div class="auth-notice ok" role="status">Bạn được mời vào một doanh nghiệp. Hãy đăng nhập hoặc đăng ký; mã mời sẽ tự điền ở bước tiếp theo.</div>':''}
  ${!forgot&&!recovery?`<div class="lg-tabs" role="tablist" aria-label="Chọn cách truy cập"><button data-auth-tab="login" type="button" role="tab" aria-selected="${!signup}" class="${signup?'':'active'}">Đăng nhập</button><button data-auth-tab="signup" type="button" role="tab" aria-selected="${signup}" class="${signup?'active':''}">Đăng ký</button></div>`:''}
  <form id="auth-entry" class="lg-form">
  <input type="hidden" name="mode" value="${recovery?'reset':tab}">
@@ -37,10 +38,10 @@ export function loginView({tab='login',error='',configured=true,recovery=false,t
  <div class="lg-trust"><span aria-hidden="true">✓</span><div><b>Không gian riêng cho mỗi doanh nghiệp</b><small>Dữ liệu chỉ chia sẻ với thành viên được cấp quyền.</small></div></div>
  </div></section></div>`;
 }
-export function organizationsView({user,organizations=[],error='',loading=false}={}){
+export function organizationsView({user,organizations=[],error='',loading=false,inviteCode=''}={}){
  return `<div class="lg-choose"><div class="lg-choose-wrap"><div class="lg-brand big">${mark(30)}<span>Retail<b>Mind</b></span></div><span class="lg-eyebrow dark">KHÔNG GIAN DOANH NGHIỆP</span><h1>Chọn nơi bạn muốn làm việc</h1><p class="lg-sub">Đăng nhập: <strong>${escape(user?.email||'')}</strong></p>${error?`<div class="auth-notice">${escape(error)}</div>`:''}
  ${organizations.length?`<div class="lg-orgs">${organizations.map((o,i)=>`<button data-auth-action="choose" data-org="${escape(o.id)}" style="--k:var(--c${i%6+1})"><span class="lg-org-ico">${escape(String(o.name||'?').trim().slice(0,1).toUpperCase())}</span><span><strong>${escape(o.name)}</strong><small>${o.role==='owner'?'Chủ doanh nghiệp':o.role==='admin'?'Quản trị viên':'Nhân viên'}</small></span><span class="lg-go">→</span></button>`).join('')}</div>`:''}
  <div class="lg-choose-cards"><form id="company-create" class="lg-ccard c-a"><div class="lg-cbig">＋</div><h2>Tạo doanh nghiệp</h2><p>Bắt đầu với dữ liệu trống, độc lập với dữ liệu demo.</p><label>Tên doanh nghiệp<input name="company" maxlength="120" minlength="2" placeholder="Ví dụ: Công ty An Phát" required></label><button type="submit" class="lg-submit" ${loading?'disabled':''}>Tạo không gian mới</button></form>
- <form id="company-join" class="lg-ccard c-b"><div class="lg-cbig">↗</div><h2>Tham gia doanh nghiệp</h2><p>Nhập mã mời mà chủ doanh nghiệp gửi cho bạn.</p><label>Mã mời<input name="code" placeholder="Dán mã mời" autocomplete="off" required></label><button type="submit" class="lg-submit ghost" ${loading?'disabled':''}>Tham gia</button></form></div>
+ <form id="company-join" class="lg-ccard c-b"><div class="lg-cbig">↗</div><h2>Tham gia doanh nghiệp</h2><p>Nhập mã mời mà chủ doanh nghiệp gửi cho bạn.</p><label>Mã mời<input name="code" placeholder="Dán mã mời" autocomplete="off" value="${escape(inviteCode)}" required></label><button type="submit" class="lg-submit ghost" ${loading?'disabled':''}>Tham gia</button></form></div>
  <button class="lg-signout" data-auth-action="logout">Đăng xuất tài khoản</button></div></div>`;
 }

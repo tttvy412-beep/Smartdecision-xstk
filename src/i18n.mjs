@@ -1,3 +1,4 @@
+import {enMore,enPatterns,enPatterns2} from './i18n-en.mjs';
 export const uiLanguage=()=>{try{return localStorage.getItem('retailmind_lang')||'vi';}catch{return 'vi';}};
 const en={
 'VẬN HÀNH':'OPERATIONS','HỖ TRỢ RA QUYẾT ĐỊNH':'DECISION INTELLIGENCE','HỆ THỐNG':'WORKSPACE',
@@ -55,12 +56,14 @@ const en={
 'GIÁ TRỊ HÀNG TỒN':'INVENTORY VALUE',
 'Đang đồng bộ':'Syncing','Đã đồng bộ':'Synced',
 };
+export function translateText(text,lang='en'){if(lang!=='en')return text;const t=String(text??'').trim();if(!t)return text;if(en[t])return String(text).replace(t,en[t]);
+ for(const [re,rep] of [...enPatterns,...enPatterns2]){if(re.test(t))return String(text).replace(t,t.replace(re,rep));}return text;}
 export function translateUI(root,lang){if(lang!=='en'||!root||typeof document==='undefined')return;
  const walk=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];while(walk.nextNode())nodes.push(walk.currentNode);
  for(const node of nodes){const parent=node.parentElement;if(parent?.closest('script,style,textarea,code,pre,[data-no-translate]'))continue;
-  const text=node.textContent||'',trimmed=text.trim();if(en[trimmed])node.textContent=text.replace(trimmed,en[trimmed]);
+  const text=node.textContent||'';const out=translateText(text,'en');if(out!==text)node.textContent=out;
  }
- root.querySelectorAll('input[placeholder]').forEach(node=>{const p=node.getAttribute('placeholder');if(en[p])node.placeholder=en[p];});
+ root.querySelectorAll?.('[placeholder],[aria-label],[title],[alt]').forEach(node=>{if(node.closest('[data-no-translate]'))return;for(const a of ['placeholder','aria-label','title','alt']){const v=node.getAttribute(a);if(v){const o=translateText(v,'en');if(o!==v)node.setAttribute(a,o);}}});
 }
 // Additional visible copy for RetailMind's dedicated account experience.
 Object.assign(en,{
@@ -117,3 +120,4 @@ Object.assign(en,{
  'Theo dõi':'Monitor','Đã bán':'Units sold',
  'Định dạng số tiền':'Amount formatting',
 });
+Object.assign(en,enMore);

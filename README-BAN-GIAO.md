@@ -1,3 +1,24 @@
+# RetailMind v9.3 — Sửa lỗi, tiếng Anh, truy cập, di động
+
+**Việc BẮT BUỘC làm một lần trên Supabase / Netlify**
+1. Supabase → SQL Editor → chạy `supabase/PATCH-MA-MOI.sql` (sửa lỗi *Tạo mã mời*: hàm `rm_create_invite` dùng `gen_random_bytes` nhưng `search_path` rỗng nên không tìm thấy hàm). Dự án mới chỉ cần chạy `SETUP-RETAILMIND.sql` bản mới.
+2. Supabase → Authentication → URL Configuration: đặt **Site URL** = địa chỉ Netlify mới của bạn và thêm nó vào **Redirect URLs**. Nếu không, e-mail xác nhận vẫn trỏ về trang cũ. App đã gửi `redirect_to` đúng địa chỉ hiện tại, nhưng Supabase chỉ chấp nhận địa chỉ nằm trong danh sách này.
+3. Netlify: biến `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `GEMINI_API_KEY`; deploy lại.
+
+**Đã sửa**
+- Tạo mã mời: sửa SQL + hiển thị mã, liên kết mời, nút sao chép, thông báo thân thiện nếu chưa vá SQL; người được mời mở liên kết → mã tự điền.
+- Kho & kiểm kê: tiêu đề mục lớn nằm trên 3 thẻ số liệu.
+- Xác nhận e-mail: về đúng site, báo thành công / liên kết hết hạn.
+- Hộp thoại: bottom-sheet trên di động, khóa cuộn nền, Esc, bẫy Tab, trả focus, nhãn nút đúng ngữ cảnh.
+- Tiếng Anh: từ điển đầy đủ + quy tắc cho chuỗi có số; dịch cả hộp thoại, palette Ctrl+K, placeholder, aria-label, title, ngày.
+- Truy cập: skip-link, landmark `main`, focus rõ, vùng chạm lớn; di động không tràn ngang (đã kiểm 14 trang ở 390px).
+- Sửa nhãn "undefined" ở đối tác thiếu loại; phiên bản 9.3.
+
+- v9.4 (CSS): rà soát tương phản chữ WCAG AA trên cả 6 bảng màu (đã làm đậm gradient dưới chữ trắng, màu chữ phụ, trạng thái); nút/ô nhập ≥44px trên màn hình cảm ứng; đã kiểm bằng script đo tự động, không còn lỗi chữ (chỉ còn vài biểu tượng trang trí).
+- Giọng nói: đã kiểm luồng micro → câu hỏi → trả lời → đọc to bằng micro/loa giả lập.
+
+**Chưa kiểm chứng được:** Supabase và Gemini thật trên Netlify (đã kiểm bằng Supabase giả lập); tên sản phẩm/khách do người dùng nhập không được dịch (đúng thiết kế).
+
 # RetailMind v9.2 — Bố cục mới "Phố bán lẻ sắc màu"
 
 - **Bố cục:** bỏ menu trái; dùng thanh trên + dock điều hướng nổi, mỗi trang có masthead riêng; Tổng quan dạng bento; Sản phẩm dạng thẻ/bảng; Khách hàng dạng thẻ; Quyết định dạng kanban (chuyển trạng thái 1 chạm); tìm nhanh/ra lệnh bằng **Ctrl K**.
