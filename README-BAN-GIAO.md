@@ -4,7 +4,9 @@
 
 **Quên mật khẩu:** ở trang đăng nhập bấm "Quên mật khẩu?" → nhập e-mail → Supabase gửi liên kết → mở liên kết để đặt mật khẩu mới. Liên kết này cũng cần được Supabase cho phép (xem mục 2 bên dưới).
 
-**Gọi "RetailMind":** cần Chrome/Edge, HTTPS và cấp quyền micro. Giờ có dải "Nghe được: …" hiển thị chữ trình duyệt nhận ra, nên bạn thấy ngay nó có nghe hay không; hiểu cả "retail mind", "ri tây minh", "trợ lý". Khi chỉ gọi tên, app trả lời "Dạ, tôi nghe". Nút micro trong khung chat dùng cho một câu hỏi đơn.
+**Nút "Trò chuyện" (v9.6):** đã bỏ nút "Gọi RetailMind" trên thanh trên. Trong khung trợ lý Gemini có nút **Trò chuyện**: bấm một lần, nói câu hỏi → RetailMind trả lời bằng giọng nói rồi tự nghe tiếp; bấm lại để dừng. Cần Chrome/Edge, HTTPS, quyền micro và giọng đọc tiếng Việt trên thiết bị. Chế độ Sáng/Dịu có thẻ màu tươi, chế độ Tối có thẻ nền tối viền màu.
+
+**(Cũ) Gọi "RetailMind":** cần Chrome/Edge, HTTPS và cấp quyền micro. Giờ có dải "Nghe được: …" hiển thị chữ trình duyệt nhận ra, nên bạn thấy ngay nó có nghe hay không; hiểu cả "retail mind", "ri tây minh", "trợ lý". Khi chỉ gọi tên, app trả lời "Dạ, tôi nghe". Nút micro trong khung chat dùng cho một câu hỏi đơn.
 
 **Vì sao "Tạo mã mời" báo lỗi và bạn cần làm gì (lỗi nằm ở Supabase của bạn, không phải ở app):**
 Hàm SQL tạo mã mời trong Supabase của bạn là bản cũ. Code web không thể tự sửa cơ sở dữ liệu. Cách làm: Supabase → SQL Editor → New query → dán nội dung `supabase/PATCH-MA-MOI.sql` (hoặc bấm "Tạo mã mời" trong app, nút "Sao chép đoạn SQL vá lỗi" hiện ra ngay) → Run. Chỉ làm một lần.
