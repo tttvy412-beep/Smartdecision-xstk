@@ -556,3 +556,76 @@ html[data-mode="dark"] .modal p,html[data-mode="dark"] .modal small,html[data-mo
 html[data-mode="dark"] .restock-choice,html[data-mode="dark"] .modal .pricing-info{background:#241f4a!important}
 html[data-mode="dark"] .pcard-cat,html[data-mode="dark"] .pcard-flag,html[data-mode="dark"] td span:not(.status){color:#fff}
 html[data-mode="dark"] .decision-prompt p,html[data-mode="dark"] .decision-prompt span,html[data-mode="dark"] .decision-prompt strong{color:#d9d4ff!important}
+
+/* ===== v9.7 motion: entrance, ambient float, living charts (all disabled by prefers-reduced-motion) ===== */
+@property --p{syntax:'<number>';inherits:false;initial-value:0}
+@keyframes riseIn{from{opacity:0;transform:translateY(26px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes floatY{0%,100%{translate:0 0}50%{translate:0 -7px}}
+@keyframes floatSoft{0%,100%{translate:0 0}50%{translate:0 -4px}}
+@keyframes driftA{0%,100%{translate:0 0;rotate:0deg}50%{translate:-26px 18px;rotate:8deg}}
+@keyframes driftB{0%,100%{translate:0 0;rotate:24deg}50%{translate:22px -16px;rotate:34deg}}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes growY{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes growX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes ringIn{from{--p:0}}
+@keyframes drawLine{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes orbPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c1) 55%,transparent)}70%{box-shadow:0 0 0 16px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.5)}}
+@keyframes badgePop{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+@keyframes shine{from{translate:-120% 0}to{translate:220% 0}}
+
+/* entrance: only when the page changes (data-enter), staggered */
+.rm-page[data-enter] .rm-mast,.rm-page[data-enter] .db-hero,.rm-page[data-enter] .db-kpi,.rm-page[data-enter] .metric,.rm-page[data-enter] .panel,.rm-page[data-enter] .db-card,.rm-page[data-enter] .pcard,.rm-page[data-enter] .ccard,.rm-page[data-enter] .kcol,.rm-page[data-enter] .db-quick,.rm-page[data-enter] .podium-wrap,.rm-page[data-enter] .decision-prompt{animation:riseIn .6s cubic-bezier(.2,.8,.2,1) both}
+.rm-page[data-enter] :is(.db-kpi,.metric,.pcard,.ccard,.kcol,.db-card,.panel):nth-child(2){animation-delay:.07s}
+.rm-page[data-enter] :is(.db-kpi,.metric,.pcard,.ccard,.kcol,.db-card,.panel):nth-child(3){animation-delay:.14s}
+.rm-page[data-enter] :is(.db-kpi,.metric,.pcard,.ccard,.kcol,.db-card,.panel):nth-child(4){animation-delay:.21s}
+.rm-page[data-enter] :is(.db-kpi,.metric,.pcard,.ccard,.kcol,.db-card,.panel):nth-child(5){animation-delay:.28s}
+.rm-page[data-enter] :is(.db-kpi,.metric,.pcard,.ccard,.kcol,.db-card,.panel):nth-child(6){animation-delay:.35s}
+.rm-page[data-enter] :is(.db-kpi,.metric,.pcard,.ccard,.kcol,.db-card,.panel):nth-child(n+7){animation-delay:.42s}
+.rm-page[data-enter] .db-hero,.rm-page[data-enter] .rm-mast{animation-duration:.7s}
+.rm-page[data-enter] .db-kpis{--d:.15s}
+
+/* ambient motion (always on, gentle) */
+.db-hero,.rm-mast{background-size:170% 170%!important;animation:gradShift 18s ease-in-out infinite}
+.rm-page[data-enter] .db-hero,.rm-page[data-enter] .rm-mast{animation:riseIn .7s cubic-bezier(.2,.8,.2,1) both,gradShift 18s ease-in-out .8s infinite}
+.db-blob.b1,.rm-shape.s1{animation:driftA 14s ease-in-out infinite}
+.db-blob.b2,.rm-shape.s2{animation:driftB 11s ease-in-out infinite}
+.rm-shape.s3,.db-blob.b3{animation:driftA 17s ease-in-out infinite reverse}
+.db-health{animation:floatY 6.5s ease-in-out infinite}
+.db-kpi{animation:floatSoft 7s ease-in-out infinite}
+.db-kpi:nth-child(2){animation-delay:-1.6s}.db-kpi:nth-child(3){animation-delay:-3.2s}.db-kpi:nth-child(4){animation-delay:-4.8s}
+.rm-page[data-enter] .db-kpi{animation:riseIn .6s cubic-bezier(.2,.8,.2,1) both,floatSoft 7s ease-in-out 1s infinite}
+.rm-page[data-enter] .db-kpi:nth-child(2){animation-delay:.07s,-1.6s}.rm-page[data-enter] .db-kpi:nth-child(3){animation-delay:.14s,-3.2s}.rm-page[data-enter] .db-kpi:nth-child(4){animation-delay:.21s,-4.8s}
+.db-kpi::after,.rm-mast-badge::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);translate:-120% 0;animation:shine 7s ease-in-out infinite;pointer-events:none}
+.db-kpi:nth-child(2)::after{animation-delay:1.2s}.db-kpi:nth-child(3)::after{animation-delay:2.4s}.db-kpi:nth-child(4)::after{animation-delay:3.6s}
+.rm-app .chat-fab{animation:orbPulse 2.6s ease-out infinite,floatSoft 5s ease-in-out infinite}
+.data-label .dot,.rm-brand .brand-mark+*+.dot{animation:dotPulse 2s ease-in-out infinite}
+.rm-badge{animation:badgePop 2.2s ease-in-out infinite}
+.status-bad,.pcard-flag:not(.off){animation:badgePop 2.8s ease-in-out infinite}
+
+/* living charts */
+.db-col-bars i{transform-origin:bottom;animation:growY .9s cubic-bezier(.2,.8,.2,1) both}
+.db-col:nth-child(2) .db-col-bars i{animation-delay:.08s}.db-col:nth-child(3) .db-col-bars i{animation-delay:.16s}.db-col:nth-child(4) .db-col-bars i{animation-delay:.24s}.db-col:nth-child(5) .db-col-bars i{animation-delay:.32s}.db-col:nth-child(6) .db-col-bars i{animation-delay:.4s}
+.db-col-bars i:last-child{animation-delay:.1s}
+.meter>i,.pcard .bar>i,.pcard-bar>i{transform-origin:left;animation:growX 1s cubic-bezier(.2,.8,.2,1) .15s both}
+.db-ring{animation:ringIn 1.2s cubic-bezier(.2,.8,.2,1) both}
+.db-spark polyline{stroke-dasharray:1;stroke-dashoffset:0;animation:drawLine 1.5s ease .3s both}
+.rm-dock-item{transition:transform .28s cubic-bezier(.3,1.6,.5,1)}
+.rm-dock-item:hover{transform:translateY(-8px) scale(1.14)}
+.rm-dock-item.on,.rm-dock-item.active,.rm-dock-item[aria-current="page"]{animation:floatSoft 3.2s ease-in-out infinite}
+.pcard,.ccard,.kcard,.db-card,.panel,.metric{transition:transform .28s cubic-bezier(.3,1.4,.5,1),box-shadow .28s}
+.pcard:hover,.ccard:hover,.kcard:hover{transform:translateY(-6px) rotate(-.4deg)}
+.db-card:hover,.rm-page .panel:hover,.rm-page .metric:hover{transform:translateY(-3px)}
+.db-todo{transition:transform .22s,background .22s}.db-todo:hover{transform:translateX(5px)}
+.db-prompts button,.db-quick button,.rm-mast .btn{transition:transform .22s cubic-bezier(.3,1.6,.5,1)}
+.db-prompts button:hover,.db-quick button:hover,.rm-mast .btn:hover{transform:translateY(-3px) scale(1.04)}
+.db-prompts button:active,.db-quick button:active,.rm-mast .btn:active{transform:scale(.96)}
+.db-kpi{overflow:hidden}
+@media(prefers-reduced-motion:reduce){.db-hero,.rm-mast,.db-kpi,.db-health,.db-blob,.rm-shape,.chat-fab,.rm-badge,.db-col-bars i,.meter>i,.db-ring,.db-spark polyline,.rm-dock-item,.db-kpi::after{animation:none!important}.rm-page[data-enter] *{animation:none!important}}
+
+/* ===== v9.7 health card colour: vivid green in light/soft, bright mint in dark ===== */
+html:not([data-mode="dark"]) .db-health.tone-ok{--hc:#0fb67f}
+html:not([data-mode="dark"]) .db-health.tone-warn{--hc:#e69500}
+html:not([data-mode="dark"]) .db-health.tone-bad{--hc:#ef3b5d}
+html:not([data-mode="dark"]) .db-health button{background:color-mix(in srgb,var(--hc) 82%,#000)!important;color:#fff!important}
+html[data-mode="dark"] .db-health.tone-ok{--hc:#4ade9c}
