@@ -517,3 +517,42 @@ html[data-mode="dark"] .rm-page .rm-mast .btn.primary,html[data-mode="dark"] .rm
 html[data-mode="dark"] .rm-mast .btn.primary *{background:transparent!important}
 .mode-row{grid-column:1/-1;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:6px 0 10px}.mode-label{font-weight:700;font-size:12.5px}
 @media(max-width:520px){.mode-switch{flex-wrap:wrap;border-radius:18px}}
+
+/* ===== v9.6 mode-aware cards: bright & vivid in light/soft, dark surfaces in dark ===== */
+:root{--bn:90%}
+html[data-mode="light"]{--bn:100%}
+html[data-mode="dark"]{--bn:26%}
+html[data-mode="dark"] .rm-mast,html[data-mode="dark"] .db-hero,html[data-mode="dark"] .db-kpi{box-shadow:0 0 0 1px color-mix(in srgb,var(--k,var(--pg,var(--c1))) 55%,transparent),0 18px 36px rgba(0,0,0,.45)!important}
+html[data-mode="dark"] .db-hero{background:linear-gradient(120deg,color-mix(in srgb,var(--c1) 26%,#0f0e22),color-mix(in srgb,var(--c2) 22%,#0f0e22) 60%,color-mix(in srgb,var(--c3) 20%,#0f0e22))!important}
+html[data-mode="dark"] .rm-mast{background:linear-gradient(118deg,color-mix(in srgb,var(--pg) 30%,#0f0e22),color-mix(in srgb,var(--pg) 18%,#0f0e22) 70%,color-mix(in srgb,var(--c2) 16%,#0f0e22))!important}
+html[data-mode="dark"] .db-kpi{background:linear-gradient(140deg,color-mix(in srgb,var(--k) 30%,#13112b),color-mix(in srgb,var(--k) 14%,#13112b))!important}
+html[data-mode="dark"] .db-kpi-ico,html[data-mode="dark"] .rm-kicker{background:color-mix(in srgb,var(--k,var(--pg,var(--c1))) 35%,transparent)!important}
+html[data-mode="dark"] .db-hero h1 em,html[data-mode="dark"] .db-hero em{color:color-mix(in srgb,var(--c3) 60%,#fff)}
+html[data-mode="dark"] .db-kpi *{text-shadow:none}
+html[data-mode="dark"] .db-kpi strong{color:color-mix(in srgb,var(--k) 45%,#fff)!important}
+html[data-mode="dark"] .kcount,html[data-mode="dark"] .kactions .btn.go,html[data-mode="dark"] .db-prompts button,html[data-mode="dark"] .rm-page .btn.primary{background:color-mix(in srgb,var(--k,var(--pg,var(--c1))) 55%,#1a1833)!important}
+html[data-mode="dark"] .db-prompts button{background:color-mix(in srgb,var(--c1) 45%,#1a1833)!important}
+html[data-mode="light"] .db-hero{background:linear-gradient(120deg,var(--c1),color-mix(in srgb,var(--c1) 45%,var(--c2)) 52%,var(--c2) 80%,var(--c3))!important}
+html[data-mode="light"] .rm-mast{background:linear-gradient(118deg,var(--pg),color-mix(in srgb,var(--pg) 55%,var(--c2)))!important}
+html[data-mode="light"] .db-kpi{background:linear-gradient(140deg,var(--k),color-mix(in srgb,var(--k) 62%,#fff))!important}
+html[data-mode="light"] .db-hero *,html[data-mode="light"] .rm-mast *,html[data-mode="light"] .db-kpi *{text-shadow:0 1px 3px rgba(0,0,0,.35)}
+html[data-mode="light"] .db-hero .db-cta:not(.ghost) *,html[data-mode="light"] .rm-mast .btn.primary,html[data-mode="light"] .rm-mast .btn.primary *{text-shadow:none}
+/* talk button */
+.chat-talk{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:10px 16px;font-weight:800;font-size:13px;color:#fff;cursor:pointer;min-height:44px;background:linear-gradient(95deg,color-mix(in srgb,var(--c4) 70%,#000),color-mix(in srgb,var(--c5) 70%,#000));box-shadow:0 8px 18px color-mix(in srgb,var(--c4) 30%,transparent)}
+.chat-talk.on{background:linear-gradient(95deg,#be123c,#9f1239);animation:talkPulse 1.6s ease-in-out infinite}
+@keyframes talkPulse{0%,100%{box-shadow:0 0 0 0 rgba(225,29,72,.5)}50%{box-shadow:0 0 0 10px rgba(225,29,72,0)}}
+@media(prefers-reduced-motion:reduce){.chat-talk.on{animation:none}}
+html[data-mode] .db-health *,html[data-mode] .db-hero .db-cta,html[data-mode] .db-hero .db-cta *,html[data-mode] .rm-mast .btn.primary,html[data-mode] .rm-mast .btn.primary *,html[data-mode] .rm-mast select{text-shadow:none!important}
+/* v9.6.1 dark-mode contrast fixes + slightly deeper default (soft) cards */
+:root{--bn:80%}
+html[data-mode="dark"]{--bn:26%}html[data-mode="light"]{--bn:100%}
+html[data-mode="dark"] code,html[data-mode="dark"] .code,html[data-mode="dark"] .pcard .code{background:#2a2552!important;color:#e4e0ff!important}
+html[data-mode="dark"] dt,html[data-mode="dark"] dd,html[data-mode="dark"] .ccard dl *,html[data-mode="dark"] .kcard dl *{background:transparent!important;color:#d9d4ff!important}
+html[data-mode="dark"] .ccard dd,html[data-mode="dark"] .kcard dd{color:#fff!important}
+html[data-mode="dark"] .negative,html[data-mode="dark"] td .negative{background:transparent!important;color:#fda4af!important}
+html[data-mode="dark"] .positive{background:transparent!important;color:#6ee7b7!important}
+html[data-mode="dark"] .db-health button{color:#14122b!important}
+html[data-mode="dark"] .modal p,html[data-mode="dark"] .modal small,html[data-mode="dark"] .restock-choice *,html[data-mode="dark"] .result-box *{background-color:transparent;color:#d9d4ff}
+html[data-mode="dark"] .restock-choice,html[data-mode="dark"] .modal .pricing-info{background:#241f4a!important}
+html[data-mode="dark"] .pcard-cat,html[data-mode="dark"] .pcard-flag,html[data-mode="dark"] td span:not(.status){color:#fff}
+html[data-mode="dark"] .decision-prompt p,html[data-mode="dark"] .decision-prompt span,html[data-mode="dark"] .decision-prompt strong{color:#d9d4ff!important}
