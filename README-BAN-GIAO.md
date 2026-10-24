@@ -1,3 +1,8 @@
+# RetailMind v9.7 — chuyển động trở lại + màu xanh sức khỏe
+
+- Chuyển động: thẻ xuất hiện lần lượt khi đổi trang, thẻ số liệu nổi nhẹ và có vệt sáng, hình nền banner trôi, cột biểu đồ/thanh tiến độ/vòng điểm/đường xu hướng chạy ra, số đếm lên, dock phóng to khi rê chuột, nút trợ lý Gemini nhấp nháy. Tự tắt khi hệ điều hành bật "giảm chuyển động" (prefers-reduced-motion).
+- Thẻ "Điểm sức khỏe": màu xanh tươi hơn ở chế độ Sáng/Dịu, xanh bạc hà sáng ở chế độ Tối.
+
 # RetailMind v9.5 — Sáng/Dịu/Tối, quên mật khẩu, gọi tên, mã mời
 
 **Chế độ hiển thị:** nút tròn trên thanh trên cùng (và Cài đặt → "Chế độ sáng / tối", và trang đăng nhập) chuyển giữa **Sáng / Dịu (mặc định) / Tối / Tự động theo thiết bị**. Lựa chọn được nhớ trên thiết bị.
