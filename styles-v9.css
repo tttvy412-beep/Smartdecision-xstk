@@ -572,7 +572,6 @@ html[data-mode="dark"] .decision-prompt p,html[data-mode="dark"] .decision-promp
 @keyframes orbPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c1) 55%,transparent)}70%{box-shadow:0 0 0 16px transparent}100%{box-shadow:0 0 0 0 transparent}}
 @keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.5)}}
 @keyframes badgePop{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
-@keyframes shine{from{translate:-120% 0}to{translate:220% 0}}
 
 /* entrance: only when the page changes (data-enter), staggered */
 .rm-page[data-enter] .rm-mast,.rm-page[data-enter] .db-hero,.rm-page[data-enter] .db-kpi,.rm-page[data-enter] .metric,.rm-page[data-enter] .panel,.rm-page[data-enter] .db-card,.rm-page[data-enter] .pcard,.rm-page[data-enter] .ccard,.rm-page[data-enter] .kcol,.rm-page[data-enter] .db-quick,.rm-page[data-enter] .podium-wrap,.rm-page[data-enter] .decision-prompt{animation:riseIn .6s cubic-bezier(.2,.8,.2,1) both}
@@ -596,8 +595,6 @@ html[data-mode="dark"] .decision-prompt p,html[data-mode="dark"] .decision-promp
 .db-kpi:nth-child(2){animation-delay:-1.6s}.db-kpi:nth-child(3){animation-delay:-3.2s}.db-kpi:nth-child(4){animation-delay:-4.8s}
 .rm-page[data-enter] .db-kpi{animation:riseIn .6s cubic-bezier(.2,.8,.2,1) both,floatSoft 7s ease-in-out 1s infinite}
 .rm-page[data-enter] .db-kpi:nth-child(2){animation-delay:.07s,-1.6s}.rm-page[data-enter] .db-kpi:nth-child(3){animation-delay:.14s,-3.2s}.rm-page[data-enter] .db-kpi:nth-child(4){animation-delay:.21s,-4.8s}
-.db-kpi::after,.rm-mast-badge::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);translate:-120% 0;animation:shine 7s ease-in-out infinite;pointer-events:none}
-.db-kpi:nth-child(2)::after{animation-delay:1.2s}.db-kpi:nth-child(3)::after{animation-delay:2.4s}.db-kpi:nth-child(4)::after{animation-delay:3.6s}
 .rm-app .chat-fab{animation:orbPulse 2.6s ease-out infinite,floatSoft 5s ease-in-out infinite}
 .data-label .dot,.rm-brand .brand-mark+*+.dot{animation:dotPulse 2s ease-in-out infinite}
 .rm-badge{animation:badgePop 2.2s ease-in-out infinite}
@@ -621,7 +618,7 @@ html[data-mode="dark"] .decision-prompt p,html[data-mode="dark"] .decision-promp
 .db-prompts button:hover,.db-quick button:hover,.rm-mast .btn:hover{transform:translateY(-3px) scale(1.04)}
 .db-prompts button:active,.db-quick button:active,.rm-mast .btn:active{transform:scale(.96)}
 .db-kpi{overflow:hidden}
-@media(prefers-reduced-motion:reduce){.db-hero,.rm-mast,.db-kpi,.db-health,.db-blob,.rm-shape,.chat-fab,.rm-badge,.db-col-bars i,.meter>i,.db-ring,.db-spark polyline,.rm-dock-item,.db-kpi::after{animation:none!important}.rm-page[data-enter] *{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.db-hero,.rm-mast,.db-kpi,.db-health,.db-blob,.rm-shape,.chat-fab,.rm-badge,.db-col-bars i,.meter>i,.db-ring,.db-spark polyline,.rm-dock-item{animation:none!important}.rm-page[data-enter] *{animation:none!important}}
 
 /* ===== v9.7 health card colour: vivid green in light/soft, bright mint in dark ===== */
 html:not([data-mode="dark"]) .db-health.tone-ok{--hc:#0fb67f}
@@ -629,3 +626,8 @@ html:not([data-mode="dark"]) .db-health.tone-warn{--hc:#e69500}
 html:not([data-mode="dark"]) .db-health.tone-bad{--hc:#ef3b5d}
 html:not([data-mode="dark"]) .db-health button{background:color-mix(in srgb,var(--hc) 82%,#000)!important;color:#fff!important}
 html[data-mode="dark"] .db-health.tone-ok{--hc:#4ade9c}
+/* v9.7.1 interactive elements never drift (accessibility: no constantly-moving controls) */
+.rm-dock-item.on,.rm-dock-item.active,.rm-dock-item[aria-current="page"]{animation:none}
+.rm-app .chat-fab{animation:orbPulse 2.6s ease-out infinite}
+.db-health{animation:none}
+@media (pointer:coarse),(max-width:720px){.pcard .btn,.pcard button,.ccard .btn,.rm-main td .btn{min-width:48px}}

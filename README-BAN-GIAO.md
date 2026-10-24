@@ -1,3 +1,9 @@
+# RetailMind v9.7.1 — bản chốt
+
+- Bỏ hiệu ứng vệt sáng chạy ngang trên biểu tượng banner và thẻ số liệu (ở mọi trang). Các nút điều khiển (dock, thẻ sức khỏe) không còn trôi liên tục.
+- Thêm 6 bài test bất biến nghiệp vụ (kho không âm, công nợ/phải thu không âm, không thu vượt hóa đơn, bảo toàn kho…) chạy 600 thao tác ngẫu nhiên.
+- Đã quét 504 màn hình (6 bảng màu × 3 chế độ × 14 trang × 2 kích thước): không lỗi JS, không tràn ngang.
+
 # RetailMind v9.7 — chuyển động trở lại + màu xanh sức khỏe
 
 - Chuyển động: thẻ xuất hiện lần lượt khi đổi trang, thẻ số liệu nổi nhẹ và có vệt sáng, hình nền banner trôi, cột biểu đồ/thanh tiến độ/vòng điểm/đường xu hướng chạy ra, số đếm lên, dock phóng to khi rê chuột, nút trợ lý Gemini nhấp nháy. Tự tắt khi hệ điều hành bật "giảm chuyển động" (prefers-reduced-motion).
