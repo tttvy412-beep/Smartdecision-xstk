@@ -14,3 +14,4 @@ begin
 end $$;
 revoke all on function public.rm_create_invite(uuid) from public;
 grant execute on function public.rm_create_invite(uuid) to authenticated;
+notify pgrst, 'reload schema';

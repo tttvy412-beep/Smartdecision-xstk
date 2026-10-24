@@ -418,3 +418,102 @@ body.modal-open{overflow:hidden}body.modal-open .rm-dock,body.modal-open .chat-f
  .pcard .btn,.pcard button{min-height:44px}
 }
 @media (pointer:coarse),(max-width:720px){.rm-main td .btn,.rm-main td button{min-width:44px}}
+
+/* ===== v9.5 display modes: light / soft (default) / dark / auto ===== */
+:root{--bn:76%}
+html[data-mode="light"]{--bn:92%}
+html[data-mode="dark"]{--bn:60%;color-scheme:dark}
+/* banner / gradient surfaces use one adjustable depth */
+.rm-mast{background:linear-gradient(118deg,color-mix(in srgb,var(--pg) var(--bn),#000) 0%,color-mix(in srgb,var(--pg) calc(var(--bn) + 6%),#000) 48%,color-mix(in srgb,color-mix(in srgb,var(--pg) 50%,var(--c2)) var(--bn),#000) 100%)!important}
+.db-hero{background:linear-gradient(120deg,color-mix(in srgb,var(--c1) var(--bn),#000) 0%,color-mix(in srgb,color-mix(in srgb,var(--c1) 50%,var(--c2)) var(--bn),#000) 52%,color-mix(in srgb,var(--c2) var(--bn),#000) 80%,color-mix(in srgb,var(--c3) var(--bn),#000) 100%)!important}
+.db-kpi{background:linear-gradient(140deg,color-mix(in srgb,var(--k) var(--bn),#000),color-mix(in srgb,var(--k) calc(var(--bn) + 8%),#000))!important}
+.kcount,.kactions .btn.go{background:color-mix(in srgb,var(--k) var(--bn),#000)!important}
+.rm-page .btn.primary{background:color-mix(in srgb,var(--pg) calc(var(--bn) + 4%),#000)!important}
+html[data-mode="light"] .rm-mast h1,html[data-mode="light"] .rm-mast p,html[data-mode="light"] .db-hero h1,html[data-mode="light"] .db-kpi *{text-shadow:0 1px 3px rgba(0,0,0,.32)}
+html[data-mode="soft"] body,html:not([data-mode]) body{background-color:#f3f1fb}
+html[data-mode="light"] body{background-color:#fff}
+
+/* ---- dark ---- */
+html[data-mode="dark"]{--ink:#eceafc;--ink2:#b4b0d0;--paper:#1a1833;--line2:#2c2950;--muted:#aeb4cf;--text:#eceafc;--bg:#0f0e22;--surface:#1a1833;--line:#2c2950}
+html[data-mode="dark"],html[data-mode="dark"] body{background:#0f0e22!important;color:#eceafc}
+html[data-mode="dark"] body::before,html[data-mode="dark"] body::after{opacity:.25}
+html[data-mode="dark"] .rm-top{background:rgba(20,18,44,.82)!important;border-color:#2c2950!important}
+html[data-mode="dark"] .rm-page .panel,html[data-mode="dark"] .rm-page .metric,html[data-mode="dark"] .db-card,html[data-mode="dark"] .pcard,html[data-mode="dark"] .ccard,html[data-mode="dark"] .kcard,html[data-mode="dark"] .kcol,html[data-mode="dark"] .db-quick,html[data-mode="dark"] .podium-wrap,html[data-mode="dark"] .modal,html[data-mode="dark"] .palette,html[data-mode="dark"] .chat-panel,html[data-mode="dark"] .rm-dock,html[data-mode="dark"] .rm-cmd,html[data-mode="dark"] .rm-org,html[data-mode="dark"] .rm-main .search,html[data-mode="dark"] .rm-main .data-label,html[data-mode="dark"] .rm-top .top-settings,html[data-mode="dark"] .rm-top .wake-toggle,html[data-mode="dark"] .rm-top .icon-button,html[data-mode="dark"] .panel,html[data-mode="dark"] .metric,html[data-mode="dark"] .choose-card,html[data-mode="dark"] .lg-card,html[data-mode="dark"] .lg-form-card,html[data-mode="dark"] .lg-ccard,html[data-mode="dark"] .pricing-info,html[data-mode="dark"] .result-box,html[data-mode="dark"] .decision-prompt,html[data-mode="dark"] .purchase-preview,html[data-mode="dark"] .restock-choice,html[data-mode="dark"] .doc-evidence,html[data-mode="dark"] .theme-card{background:#1a1833!important;color:#eceafc!important;border-color:#2c2950!important}
+html[data-mode="dark"] .rm-dock{background:rgba(26,24,51,.92)!important}
+html[data-mode="dark"] .db-health{background:#1a1833!important;color:#eceafc!important}
+html[data-mode="dark"] .db-ring{background:radial-gradient(closest-side,#1a1833 75%,transparent 77%),conic-gradient(var(--hc,#999) calc(var(--p)*1%),#2c2950 0)!important}
+html[data-mode="dark"] .db-health.tone-ok{--hc:#34d399}html[data-mode="dark"] .db-health.tone-warn{--hc:#fbbf24}html[data-mode="dark"] .db-health.tone-bad{--hc:#fb7185}
+html[data-mode="dark"] .db-ring b,html[data-mode="dark"] .db-health h2{color:var(--hc)!important}
+html[data-mode="dark"] h1,html[data-mode="dark"] h2,html[data-mode="dark"] h3,html[data-mode="dark"] h4,html[data-mode="dark"] strong,html[data-mode="dark"] b,html[data-mode="dark"] th,html[data-mode="dark"] td,html[data-mode="dark"] .panel-title h2,html[data-mode="dark"] .rm-page .metric strong,html[data-mode="dark"] .modal-title h2{color:#eceafc}
+html[data-mode="dark"] .rm-mast h1,html[data-mode="dark"] .rm-mast strong,html[data-mode="dark"] .db-hero h1,html[data-mode="dark"] .db-kpi strong,html[data-mode="dark"] .db-kpi small,html[data-mode="dark"] .db-kpi em,html[data-mode="dark"] .rm-mast *:not(.btn.primary):not(.btn.primary *){color:#fff}
+html[data-mode="dark"] .rm-mast .btn.primary,html[data-mode="dark"] .db-hero .db-cta:not(.ghost){background:#fff!important;color:#1f1b4d!important}
+html[data-mode="dark"] .db-hero em{color:#ffe08a}
+html[data-mode="dark"] small,html[data-mode="dark"] .muted,html[data-mode="dark"] .caption,html[data-mode="dark"] label,html[data-mode="dark"] .rm-page label,html[data-mode="dark"] .modal-form label,html[data-mode="dark"] .rm-page .metric small,html[data-mode="dark"] .rm-page .metric-label,html[data-mode="dark"] .rm-page .panel p,html[data-mode="dark"] .db-card header p,html[data-mode="dark"] .db-todo-text small,html[data-mode="dark"] .db-top-info small,html[data-mode="dark"] .db-cover small,html[data-mode="dark"] .db-ai p,html[data-mode="dark"] .db-health small,html[data-mode="dark"] .db-health p,html[data-mode="dark"] .db-ring small,html[data-mode="dark"] .ccard dt,html[data-mode="dark"] .kcard dt,html[data-mode="dark"] .kcol>header small,html[data-mode="dark"] .pcard-price small,html[data-mode="dark"] .formula span,html[data-mode="dark"] .result-box span,html[data-mode="dark"] .rm-org small,html[data-mode="dark"] .kempty,html[data-mode="dark"] .rm-brand-text small,html[data-mode="dark"] .palette-item small,html[data-mode="dark"] .rm-page small,html[data-mode="dark"] .empty,html[data-mode="dark"] .db-legend{color:#b4b0d0!important}
+html[data-mode="dark"] .db-health p b{color:#fff!important}
+html[data-mode="dark"] .db-kpi small,html[data-mode="dark"] .db-kpi span,html[data-mode="dark"] .db-kpi strong,html[data-mode="dark"] .db-kpi em{color:#fff!important}
+html[data-mode="dark"] table,html[data-mode="dark"] .table-scroll{background:transparent}
+html[data-mode="dark"] th{background:#241f4a!important;color:#d9d4ff!important}
+html[data-mode="dark"] td{border-color:#2c2950!important}
+html[data-mode="dark"] tr:hover td{background:#211e43}
+html[data-mode="dark"] input,html[data-mode="dark"] select,html[data-mode="dark"] textarea,html[data-mode="dark"] .modal-form input,html[data-mode="dark"] .modal-form select,html[data-mode="dark"] .modal-form textarea,html[data-mode="dark"] .lg-form input,html[data-mode="dark"] .chat-form input{background:#12112a!important;color:#eceafc!important;border-color:#3a3566!important}
+html[data-mode="dark"] ::placeholder{color:#8c88ad}
+html[data-mode="dark"] .btn.secondary,html[data-mode="dark"] .rm-page .btn.secondary,html[data-mode="dark"] .rm-page .btn.compact,html[data-mode="dark"] .btn,html[data-mode="dark"] .db-quick button,html[data-mode="dark"] .db-cta.ghost,html[data-mode="dark"] .pcard .btn{background:#241f4a;color:#e4e0ff;border-color:#3a3566}
+html[data-mode="dark"] .btn.primary,html[data-mode="dark"] .rm-page .btn.primary,html[data-mode="dark"] .modal-actions .btn.primary{color:#fff!important}
+html[data-mode="dark"] .rm-mast .btn:not(.primary){background:rgba(255,255,255,.14);color:#fff}
+html[data-mode="dark"] .rm-dock-item,html[data-mode="dark"] .rm-dock-item small,html[data-mode="dark"] .rm-lbl{color:#cfcaf0}
+html[data-mode="dark"] .rm-dock-item.on .rm-lbl,html[data-mode="dark"] .rm-dock-item.active .rm-lbl{color:#fff}
+html[data-mode="dark"] .status-ok{background:#0f3a2e;color:#6ee7b7}html[data-mode="dark"] .status-warn{background:#3d2f08;color:#fcd34d}html[data-mode="dark"] .status-bad{background:#431326;color:#fda4af}
+html[data-mode="dark"] .negative{color:#fda4af}html[data-mode="dark"] .positive{color:#6ee7b7}
+html[data-mode="dark"] .rm-page .metric-icon{background:color-mix(in srgb,var(--k,var(--pg)) 25%,#1a1833)!important;color:color-mix(in srgb,var(--k,var(--pg)) 55%,#fff)!important}
+html[data-mode="dark"] .db-chip{background:color-mix(in srgb,var(--pg) 25%,#1a1833);color:#fff}
+html[data-mode="dark"] .db-todo,html[data-mode="dark"] .db-todo:hover{background:#211e43;color:#eceafc}
+html[data-mode="dark"] .db-todo-tag,html[data-mode="dark"] .db-count,html[data-mode="dark"] .pcard-flag{background:color-mix(in srgb,var(--tc,#fb7185) 22%,#1a1833)!important;color:#fff!important}
+html[data-mode="dark"] .pcard-body,html[data-mode="dark"] .pcard-meta{background:transparent;color:#b4b0d0}
+html[data-mode="dark"] .pcard-price strong,html[data-mode="dark"] .code,html[data-mode="dark"] .pcard .code{color:color-mix(in srgb,var(--k,var(--pg)) 45%,#fff)}
+html[data-mode="dark"] .pcard-art,html[data-mode="dark"] .pcard-img{filter:brightness(.85) saturate(1.05)}
+html[data-mode="dark"] .db-quick{background:#1a1833!important}
+html[data-mode="dark"] .rm-org strong,html[data-mode="dark"] .rm-brand-text strong{color:#fff}
+html[data-mode="dark"] .rm-main>.rm-page+*,html[data-mode="dark"] footer{color:#8c88ad}
+html[data-mode="dark"] .modal-backdrop{background:rgba(5,4,20,.7)}
+html[data-mode="dark"] .palette-item:hover,html[data-mode="dark"] .palette-item.on{background:#2a2552}
+html[data-mode="dark"] .bubble.assistant,html[data-mode="dark"] .chat-body,html[data-mode="dark"] .chat-actionbar{background:#12112a;color:#eceafc}
+html[data-mode="dark"] .seg button.on{background:#3a3566;color:#fff}
+html[data-mode="dark"] .db-col,html[data-mode="dark"] .db-blob{opacity:.9}
+html[data-mode="dark"] svg text{fill:#b4b0d0}
+html[data-mode="dark"] .db-date{background:rgba(255,255,255,.18);color:#fff}
+html[data-mode="dark"] .skip-link{background:#fff;color:#1f2547}
+/* mode switch */
+.mode-switch{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:color-mix(in srgb,var(--c1) 10%,transparent);border:1.5px solid color-mix(in srgb,var(--c1) 22%,transparent)}
+.mode-switch button{border:0;background:transparent;color:inherit;font-weight:800;font-size:12.5px;padding:8px 14px;border-radius:999px;cursor:pointer;min-height:36px}
+.mode-switch button[aria-pressed="true"]{background:var(--c1);color:#fff}
+.mode-toggle{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line2,#ece8f6);background:#fff;font-size:18px;cursor:pointer;color:var(--ink)}
+html[data-mode="dark"] .mode-toggle{background:#241f4a;color:#fcd34d;border-color:#3a3566}
+html[data-mode="dark"] .mode-switch button{color:#e4e0ff}
+html[data-mode="dark"] .mode-switch button[aria-pressed="true"]{color:#fff}
+.lg-modebar{display:flex;gap:8px;align-items:center}
+
+html[data-mode="soft"] .rm-mast h1,html[data-mode="soft"] .rm-mast p,html[data-mode="soft"] .db-hero h1,html[data-mode="soft"] .db-hero p,html[data-mode="soft"] .db-kpi *,html:not([data-mode]) .db-kpi *{text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.mode-switch button svg,.mode-toggle svg{display:block}
+.mode-switch button{display:inline-flex;align-items:center;gap:6px}
+#wake-heard{position:fixed;left:50%;transform:translateX(-50%);bottom:112px;z-index:70;max-width:min(92vw,520px);padding:10px 16px;border-radius:999px;background:#1f1b4d;color:#fff;font-size:13px;font-weight:700;box-shadow:0 12px 30px rgba(0,0,0,.3)}#wake-heard[hidden]{display:none}
+.wake-toggle.is-on{box-shadow:0 0 0 3px color-mix(in srgb,var(--c4) 45%,transparent)}
+.invite-help{margin-top:14px;padding:16px;border-radius:18px;border:1.5px solid #f59e0b;background:#fff8e6;color:#4a3300}.invite-help ol{margin:8px 0 12px;padding-left:20px;line-height:1.7}.invite-help textarea{width:100%;margin-top:10px;font:12px/1.5 ui-monospace,Menlo,monospace;border-radius:12px;padding:10px;background:#fff;color:#222;border:1px solid #e3c88a}
+html[data-mode="dark"] .invite-help{background:#3a2d0c;color:#fde9b0;border-color:#8a6a14}html[data-mode="dark"] .invite-help textarea{background:#12112a;color:#eceafc;border-color:#3a3566}
+.lg-forgot-row{display:flex;justify-content:flex-end;margin:-4px 0 4px}.lg-forgot{background:none;border:0;padding:8px 2px;font-weight:800;font-size:13px;color:color-mix(in srgb,var(--c1) 70%,#000);text-decoration:underline;cursor:pointer;min-height:44px}
+html[data-mode="dark"] .rm-page .procurement-summary>div,html[data-mode="dark"] .rm-page .formula>div,html[data-mode="dark"] .result-box>div,html[data-mode="dark"] .order-receipt-stats>div,html[data-mode="dark"] .payment-history-row,html[data-mode="dark"] .issue-list>div,html[data-mode="dark"] .podium-wrap *:not(strong):not(small):not(b){background-color:transparent}
+html[data-mode="dark"] .rm-page .procurement-summary>div,html[data-mode="dark"] .rm-page .formula>div{background:#241f4a!important}
+html[data-mode="dark"] .procurement-summary strong,html[data-mode="dark"] .formula strong{color:#fff!important}
+html[data-mode="dark"] .rm-mast input,html[data-mode="dark"] .rm-mast select{background:rgba(15,14,34,.78)!important;color:#fff!important;border-color:rgba(255,255,255,.45)!important}
+html[data-mode="dark"] .rm-mast input::-webkit-calendar-picker-indicator{filter:invert(1)}
+html[data-mode="dark"] .db-cta:not(.ghost),html[data-mode="dark"] .db-hero .db-cta{background:#fff;color:#1f1b4d}
+html[data-mode="dark"] .product-thumb,html[data-mode="dark"] .top-product-image{background:#241f4a!important;filter:brightness(.9)}
+html[data-mode="dark"] .ccard,html[data-mode="dark"] .kcard{background:#1a1833!important}
+html[data-mode="dark"] .ccard-contact,html[data-mode="dark"] .kexp,html[data-mode="dark"] .pcard-meta{background:#241f4a!important;color:#d9d4ff!important}
+html[data-mode="dark"] .bubble.user{background:#4c3bd1;color:#fff}
+html[data-mode="dark"] .pod,html[data-mode="dark"] .pod strong{background:transparent;color:#fff}
+html[data-mode="dark"] code{background:#241f4a;color:#e4e0ff}
+html[data-mode="dark"] .rm-page [style*="background:#fff"],html[data-mode="dark"] .rm-page [style*="background: #fff"]{background:#241f4a!important;color:#eceafc!important}
+html[data-mode="dark"] .rm-page .rm-mast .btn.primary,html[data-mode="dark"] .rm-mast .btn.primary *{background:#fff!important;color:#1f1b4d!important}
+html[data-mode="dark"] .rm-mast .btn.primary *{background:transparent!important}
+.mode-row{grid-column:1/-1;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:6px 0 10px}.mode-label{font-weight:700;font-size:12.5px}
+@media(max-width:520px){.mode-switch{flex-wrap:wrap;border-radius:18px}}

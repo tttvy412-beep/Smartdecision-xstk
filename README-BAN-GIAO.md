@@ -1,3 +1,17 @@
+# RetailMind v9.5 — Sáng/Dịu/Tối, quên mật khẩu, gọi tên, mã mời
+
+**Chế độ hiển thị:** nút tròn trên thanh trên cùng (và Cài đặt → "Chế độ sáng / tối", và trang đăng nhập) chuyển giữa **Sáng / Dịu (mặc định) / Tối / Tự động theo thiết bị**. Lựa chọn được nhớ trên thiết bị.
+
+**Quên mật khẩu:** ở trang đăng nhập bấm "Quên mật khẩu?" → nhập e-mail → Supabase gửi liên kết → mở liên kết để đặt mật khẩu mới. Liên kết này cũng cần được Supabase cho phép (xem mục 2 bên dưới).
+
+**Gọi "RetailMind":** cần Chrome/Edge, HTTPS và cấp quyền micro. Giờ có dải "Nghe được: …" hiển thị chữ trình duyệt nhận ra, nên bạn thấy ngay nó có nghe hay không; hiểu cả "retail mind", "ri tây minh", "trợ lý". Khi chỉ gọi tên, app trả lời "Dạ, tôi nghe". Nút micro trong khung chat dùng cho một câu hỏi đơn.
+
+**Vì sao "Tạo mã mời" báo lỗi và bạn cần làm gì (lỗi nằm ở Supabase của bạn, không phải ở app):**
+Hàm SQL tạo mã mời trong Supabase của bạn là bản cũ. Code web không thể tự sửa cơ sở dữ liệu. Cách làm: Supabase → SQL Editor → New query → dán nội dung `supabase/PATCH-MA-MOI.sql` (hoặc bấm "Tạo mã mời" trong app, nút "Sao chép đoạn SQL vá lỗi" hiện ra ngay) → Run. Chỉ làm một lần.
+
+**Vì sao e-mail xác nhận vẫn dẫn về web cũ (cũng là cấu hình Supabase):**
+Supabase → Authentication → URL Configuration: đặt **Site URL** = địa chỉ web mới, và thêm địa chỉ đó (cả dạng `https://ten-web.netlify.app/**`) vào **Redirect URLs**. Nếu địa chỉ không nằm trong danh sách, Supabase bỏ qua yêu cầu của app và dùng Site URL cũ. E-mail đã gửi trước khi đổi vẫn trỏ web cũ; hãy đăng ký/gửi lại sau khi đổi.
+
 # RetailMind v9.3 — Sửa lỗi, tiếng Anh, truy cập, di động
 
 **Việc BẮT BUỘC làm một lần trên Supabase / Netlify**
