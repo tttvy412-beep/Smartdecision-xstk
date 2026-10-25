@@ -633,9 +633,9 @@ html[data-mode="dark"] .db-health.tone-ok{--hc:#4ade9c}
 @media (pointer:coarse),(max-width:720px){.pcard .btn,.pcard button,.ccard .btn,.rm-main td .btn{min-width:48px}}
 
 /* ===== v9.8 – cỡ chữ rõ rệt (3 mức), chữ & thẻ ở chế độ tối trên điện thoại ===== */
-html[data-font="small"]{zoom:.88}
-html[data-font="medium"]{zoom:1}
-html[data-font="large"]{zoom:1.2}
+/* thu/phóng nội dung (không thu/phóng thanh menu và nút Gemini để vị trí luôn đúng) */
+html[data-font="small"] :is(.rm-main,.rm-top,.modal,.palette,.chat-panel,.lg-shell,.lg-choose,.toast){zoom:.88}
+html[data-font="large"] :is(.rm-main,.rm-top,.modal,.palette,.chat-panel,.lg-shell,.lg-choose,.toast){zoom:1.2}
 
 /* chọn doanh nghiệp: nền & chữ đúng ở chế độ tối */
 html[data-mode="dark"] .lg-choose{background:radial-gradient(600px 420px at 8% 0%,color-mix(in srgb,var(--c2) 22%,transparent),transparent 70%),radial-gradient(640px 460px at 100% 100%,color-mix(in srgb,var(--c5) 18%,transparent),transparent 70%),#100e24;color:#eceafc}

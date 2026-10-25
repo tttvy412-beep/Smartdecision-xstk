@@ -11,7 +11,7 @@ test('chế độ Tự động đã bị bỏ, mặc định luôn là Dịu',()
 });
 test('cỡ chữ mặc định Vừa, có 3 mức khác biệt rõ và được lưu',()=>{
  assert.match(app,/readPref\('retailmind_font',\['small','medium','large'\],'medium'\)/);
- assert.match(css,/data-font="small"\]\{zoom:\.88\}/);assert.match(css,/data-font="large"\]\{zoom:1\.2\}/);
+ assert.match(css,/data-font="small"\] :is\([^)]*\)\{zoom:\.88\}/);assert.match(css,/data-font="large"\] :is\([^)]*\)\{zoom:1\.2\}/);
  assert.match(app,/localStorage\.setItem\('retailmind_'\+type,value\)/);
  assert.match(auth,/data-preference="font"/);
 });
