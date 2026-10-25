@@ -1,5 +1,11 @@
 # RetailMind v9.7.1 — bản chốt
 
+## v9.8.0 (25/10/2026)
+- Bỏ chế độ **Tự động**: chỉ còn Sáng / Dịu / Tối; ai vào lần đầu luôn là **Dịu** và cỡ chữ **Vừa**; lựa chọn được lưu trên thiết bị.
+- Cỡ chữ Nhỏ / Vừa / Lớn khác biệt rõ (thu/phóng toàn trang 88% / 100% / 120%), có nút chọn ngay ở trang đăng nhập và trong Hồ sơ.
+- Điện thoại + chế độ tối: sửa trang chọn doanh nghiệp (nền & chữ), dòng bảng không còn chuyển trắng khi chạm, bảng hiển thị dạng thẻ (không cuộn ngang), nút chế độ sáng/tối gọn một hàng, bỏ nút "Quên mật khẩu" bị lặp.
+
+
 - Bỏ hiệu ứng vệt sáng chạy ngang trên biểu tượng banner và thẻ số liệu (ở mọi trang). Các nút điều khiển (dock, thẻ sức khỏe) không còn trôi liên tục.
 - Thêm 6 bài test bất biến nghiệp vụ (kho không âm, công nợ/phải thu không âm, không thu vượt hóa đơn, bảo toàn kho…) chạy 600 thao tác ngẫu nhiên.
 - Đã quét 504 màn hình (6 bảng màu × 3 chế độ × 14 trang × 2 kích thước): không lỗi JS, không tràn ngang.

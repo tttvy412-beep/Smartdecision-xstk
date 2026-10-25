@@ -516,11 +516,11 @@ html[data-mode="dark"] .rm-page [style*="background:#fff"],html[data-mode="dark"
 html[data-mode="dark"] .rm-page .rm-mast .btn.primary,html[data-mode="dark"] .rm-mast .btn.primary *{background:#fff!important;color:#1f1b4d!important}
 html[data-mode="dark"] .rm-mast .btn.primary *{background:transparent!important}
 .mode-row{grid-column:1/-1;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:6px 0 10px}.mode-label{font-weight:700;font-size:12.5px}
-@media(max-width:520px){.mode-switch{flex-wrap:wrap;border-radius:18px}}
+@media(max-width:520px){.mode-switch{flex-wrap:nowrap}.mode-switch button{padding:8px 10px}.lg-tools{flex-wrap:wrap}}
 
 /* ===== v9.6 mode-aware cards: bright & vivid in light/soft, dark surfaces in dark ===== */
-:root{--bn:90%}
-html[data-mode="light"]{--bn:100%}
+:root{--bn:82%}
+html[data-mode="light"]{--bn:92%}
 html[data-mode="dark"]{--bn:26%}
 html[data-mode="dark"] .rm-mast,html[data-mode="dark"] .db-hero,html[data-mode="dark"] .db-kpi{box-shadow:0 0 0 1px color-mix(in srgb,var(--k,var(--pg,var(--c1))) 55%,transparent),0 18px 36px rgba(0,0,0,.45)!important}
 html[data-mode="dark"] .db-hero{background:linear-gradient(120deg,color-mix(in srgb,var(--c1) 26%,#0f0e22),color-mix(in srgb,var(--c2) 22%,#0f0e22) 60%,color-mix(in srgb,var(--c3) 20%,#0f0e22))!important}
@@ -631,3 +631,62 @@ html[data-mode="dark"] .db-health.tone-ok{--hc:#4ade9c}
 .rm-app .chat-fab{animation:orbPulse 2.6s ease-out infinite}
 .db-health{animation:none}
 @media (pointer:coarse),(max-width:720px){.pcard .btn,.pcard button,.ccard .btn,.rm-main td .btn{min-width:48px}}
+
+/* ===== v9.8 – cỡ chữ rõ rệt (3 mức), chữ & thẻ ở chế độ tối trên điện thoại ===== */
+html[data-font="small"]{zoom:.88}
+html[data-font="medium"]{zoom:1}
+html[data-font="large"]{zoom:1.2}
+
+/* chọn doanh nghiệp: nền & chữ đúng ở chế độ tối */
+html[data-mode="dark"] .lg-choose{background:radial-gradient(600px 420px at 8% 0%,color-mix(in srgb,var(--c2) 22%,transparent),transparent 70%),radial-gradient(640px 460px at 100% 100%,color-mix(in srgb,var(--c5) 18%,transparent),transparent 70%),#100e24;color:#eceafc}
+html[data-mode="dark"] .lg-choose h1,html[data-mode="dark"] .lg-choose .lg-brand,html[data-mode="dark"] .lg-choose .lg-brand span,html[data-mode="dark"] .lg-choose .lg-brand b{color:#f4f2ff;-webkit-text-fill-color:currentColor;background:none}
+html[data-mode="dark"] .lg-choose .lg-sub,html[data-mode="dark"] .lg-choose p{color:#c9c5ea}
+html[data-mode="dark"] .lg-choose .lg-sub b,html[data-mode="dark"] .lg-choose .lg-sub strong{color:#fff}
+html[data-mode="dark"] .lg-eyebrow.dark{background:#2a2552;color:#d8d2ff}
+html[data-mode="dark"] .lg-orgs button,html[data-mode="dark"] .lg-orgs button:hover,html[data-mode="dark"] .lg-orgs button:active,html[data-mode="dark"] .lg-orgs button:focus{background:#211e43;color:#f4f2ff;box-shadow:0 12px 26px rgba(0,0,0,.35)}
+html[data-mode="dark"] .lg-orgs strong{color:#f4f2ff}html[data-mode="dark"] .lg-orgs small{color:#bdb8e0}
+/* bảng: không bao giờ chuyển trắng khi chạm / rê chuột ở chế độ tối */
+html[data-mode="dark"] .rm-page table tbody tr:hover td,html[data-mode="dark"] .rm-page table tbody tr:active td,html[data-mode="dark"] .rm-page table tbody tr:focus td,html[data-mode="dark"] .rm-page table tbody tr:focus-within td{background:#26224d;color:#f4f2ff}
+@media (hover:none){
+ .rm-page table tbody tr:hover td{background:transparent}
+ html[data-mode="dark"] .rm-page table tbody tr:hover td{background:transparent;color:inherit}
+ .rm-dock-item:hover,.pcard:hover,.ccard:hover,.kcard:hover,.db-kpi:hover,.rm-page .metric:hover,.lg-orgs button:hover{transform:none}
+}
+
+/* điện thoại: bảng chuyển thành thẻ, không phải cuộn ngang, không còn dòng cao bất thường */
+@media (max-width:700px){
+ .table-scroll{overflow:visible}
+ .table-scroll table,.rm-page .table-scroll table{min-width:0!important;width:100%;display:block;border:0}
+ .table-scroll thead{display:none}
+ .table-scroll tbody{display:grid;gap:12px}
+ .table-scroll tbody tr{display:grid;gap:2px;padding:12px 14px;border:1.5px solid var(--line2,rgba(120,110,170,.28));border-radius:18px;background:var(--surface,#fff)}
+ .table-scroll tbody td{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:6px 0!important;border:0!important;background:transparent!important;text-align:right;min-height:0;height:auto}
+ .table-scroll tbody td[data-label]:before{content:attr(data-label);flex:none;max-width:42%;text-align:left;font-size:11.5px;font-weight:800;color:var(--muted,#667b94);letter-spacing:.01em}
+ .table-scroll tbody td[colspan]{display:block;text-align:center}
+ .table-scroll tbody td .btn,.table-scroll tbody td button{min-height:40px}
+ html[data-mode="dark"] .table-scroll tbody tr{background:#1d1a3d;border-color:#38326a}
+ html[data-mode="dark"] .table-scroll tbody td:before{color:#b9b4e0}
+}
+html[data-mode="dark"] .lg-forgot,html[data-mode="dark"] .lg-bottom button,html[data-mode="dark"] .lg-demo{color:#cbbdff}
+html[data-mode="dark"] .lg-demo{background:#1d1a3d;border-color:#6d5fd0}
+@media (max-width:700px){
+ .lg-bottom{justify-content:center;text-align:center}
+ .table-scroll tbody td:last-child{display:block;text-align:left;padding-top:10px!important;margin-top:4px;border-top:1px dashed var(--line2,rgba(120,110,170,.3))!important}
+ .table-scroll tbody td:last-child:before{display:block;max-width:none;margin-bottom:8px}
+ .table-scroll tbody td:last-child select{width:100%;margin-bottom:8px}
+ .table-scroll tbody td:last-child .btn,.table-scroll tbody td:last-child button{display:inline-flex;margin:0 6px 6px 0}
+}
+html:not([data-mode="dark"]) .db-health h2,html:not([data-mode="dark"]) .db-ring b{color:color-mix(in srgb,var(--hc) 52%,#000)}
+html:not([data-mode="dark"]) .db-health button{background:color-mix(in srgb,var(--hc) 58%,#000)!important}
+.font-switch .fs-a{font-weight:800;line-height:1;margin-right:2px}
+.font-switch button{align-items:baseline!important}
+.lg-fonts{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:color-mix(in srgb,var(--c1) 10%,transparent);border:1.5px solid color-mix(in srgb,var(--c1) 22%,transparent)}
+.lg-fonts button{border:0;background:transparent;color:inherit;font-weight:800;min-width:36px;min-height:36px;border-radius:999px;line-height:1;display:grid;place-items:center;cursor:pointer}
+.lg-fonts button[aria-pressed="true"]{background:var(--c1);color:#fff}
+html[data-mode="dark"] .lg-fonts button{color:#e4e0ff}html[data-mode="dark"] .lg-fonts button[aria-pressed="true"]{color:#fff}
+html[data-mode="dark"] .lg-tabs{background:#2a2552}
+html[data-mode="dark"] .lg-tabs button{color:#d8d2ff}
+html[data-mode="dark"] .lg-tabs button.on,html[data-mode="dark"] .lg-tabs button[aria-selected="true"],html[data-mode="dark"] .lg-tabs .current{background:#fff;color:#4c1fd1}
+html[data-mode="dark"] .lg-trust{background:#12352f;border-color:#1f6b5a;color:#d9fff3}
+html[data-mode="dark"] .lg-trust b{color:#e8fff8}html[data-mode="dark"] .lg-trust small{color:#a8e8d3}
+html[data-mode="dark"] .lg-lang{background:#2a2552}html[data-mode="dark"] .lg-lang button{color:#d8d2ff}html[data-mode="dark"] .lg-lang button.current{background:#fff;color:#4c1fd1}
