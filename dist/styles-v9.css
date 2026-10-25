@@ -690,3 +690,18 @@ html[data-mode="dark"] .lg-tabs button.on,html[data-mode="dark"] .lg-tabs button
 html[data-mode="dark"] .lg-trust{background:#12352f;border-color:#1f6b5a;color:#d9fff3}
 html[data-mode="dark"] .lg-trust b{color:#e8fff8}html[data-mode="dark"] .lg-trust small{color:#a8e8d3}
 html[data-mode="dark"] .lg-lang{background:#2a2552}html[data-mode="dark"] .lg-lang button{color:#d8d2ff}html[data-mode="dark"] .lg-lang button.current{background:#fff;color:#4c1fd1}
+
+/* v9.9 – nút Gemini kéo sát góc/cạnh, bấm là mở khung chat neo ở góc */
+.rm-app .chat-fab{z-index:60;cursor:grab}
+.rm-app .chat-head{cursor:default!important}
+.rm-app .chat-panel{z-index:70;bottom:16px!important;top:auto!important;width:min(390px,calc(100vw - 24px));height:min(560px,calc(100dvh - 32px))}
+.rm-app .chat-panel.side-right{right:12px!important;left:auto!important}
+.rm-app .chat-panel.side-left{left:12px!important;right:auto!important}
+@media(max-width:620px){.rm-app .chat-panel{left:8px!important;right:8px!important;width:auto;bottom:8px!important;height:min(78dvh,560px)}}
+/* trang đăng nhập tối giản: bỏ bộ chọn giao diện (có trong Hồ sơ → Cài đặt) */
+.lg-form-head .lg-tools{display:none!important}
+/* cỡ chữ trong Hồ sơ: 3 nút bằng nhau, căn giữa */
+.font-switch{display:grid!important;grid-template-columns:repeat(3,1fr);width:100%;max-width:360px}
+.font-switch button{justify-content:center;gap:8px;white-space:nowrap}
+.font-switch .fs-a{margin-right:0}
+.mode-row{flex-direction:column;align-items:stretch!important;gap:8px}.mode-row .mode-switch{align-self:center}
