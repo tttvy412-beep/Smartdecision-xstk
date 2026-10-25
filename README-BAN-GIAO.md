@@ -1,5 +1,11 @@
 # RetailMind v9.7.1 — bản chốt
 
+## v9.9.0 (25/10/2026)
+- Trang đăng nhập tối giản: bỏ bộ chọn chế độ, màu, cỡ chữ, ngôn ngữ (chỉnh trong Hồ sơ → Cài đặt).
+- Nút Gemini kéo được sát góc/cạnh màn hình, thả ra tự dán vào cạnh gần nhất; bấm là mở khung chat neo ở góc (điện thoại: khung dưới đáy).
+- Cỡ chữ trong Hồ sơ: 3 nút đều nhau, căn giữa.
+
+
 ## v9.8.0 (25/10/2026)
 - Bỏ chế độ **Tự động**: chỉ còn Sáng / Dịu / Tối; ai vào lần đầu luôn là **Dịu** và cỡ chữ **Vừa**; lựa chọn được lưu trên thiết bị.
 - Cỡ chữ Nhỏ / Vừa / Lớn khác biệt rõ (thu/phóng toàn trang 88% / 100% / 120%), có nút chọn ngay ở trang đăng nhập và trong Hồ sơ.
